@@ -1,6 +1,4 @@
-<<<<<<< HEAD
-# 2nd_project
-=======
+
 vc(vehicle computer software) 전체 폴더 구조 및 파일 역할
 (**systemd 관련은 아래 잘 읽고 수행할 것**)
 
@@ -61,4 +59,3 @@ sudo systemctl start vc-realtime
 3️⃣ 상태 확인
 
 systemctl status vc-realtime
->>>>>>> 60e6efb ([COM-2]/VC_RT패치 적용 전체 뼈대 구성)
