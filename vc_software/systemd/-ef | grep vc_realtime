@@ -1,0 +1,12 @@
+[0;1;32m●[0m vc-realtime.service - Vehicle Computer Real-Time Control Service
+     Loaded: loaded (]8;;file://raspberrypi/etc/systemd/system/vc-realtime.service/etc/systemd/system/vc-realtime.service]8;;; [0;1;32menabled[0m; preset: [0;1;32menabled[0m)
+     Active: [0;1;32mactive (running)[0m since Sun 2025-10-05 02:37:11 KST; 4s ago
+   Main PID: 9080 (vc_realtime)
+      Tasks: 5[0;38;5;245m (limit: 3907)[0m
+        CPU: 129ms
+     CGroup: /system.slice/vc-realtime.service
+             └─[0;38;5;245m9080 /home/hj/vc_software/apps/realtime/build/vc_realtime[0m
+
+Oct 05 02:37:11 raspberrypi systemd[1]: Started vc-realtime.service - Vehicle Computer Real-Time Control Service.
+Oct 05 02:37:11 raspberrypi vc_realtime[9080]: open rfcomm: No such file or directory
+Oct 05 02:37:11 raspberrypi vc_realtime[9080]: [joy] /dev/rfcomm0 open 실패. (테스트 모드: 입력 없음)

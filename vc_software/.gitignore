@@ -1,0 +1,7 @@
+*.o
+*.bin
+*.elf
+__pycache__/
+logs/
+*.log
+
