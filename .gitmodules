@@ -1,0 +1,6 @@
+[submodule "dks/server"]
+	path = dks/server
+	url = https://github.com/4ourtune/dks-server.git
+[submodule "dks/client"]
+	path = dks/client
+	url = https://github.com/4ourtune/dks-client.git
