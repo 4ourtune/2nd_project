@@ -1,3 +1,23 @@
+# 2nd_project repo에서 라파에 vc_software 폴더만 다운받는법입니다.
+
+# 1. git 설치 (없으면)
+sudo apt install git -y
+
+# 2. repo clone (submodule 및 다른 폴더는 제외)
+git clone --depth=1 --no-recurse-submodules https://github.com/4ourtune/2nd_project.git
+cd 2nd_project
+
+# 3. sparse-checkout 초기화
+git sparse-checkout init --cone
+
+# 4. vc_software 폴더만 선택
+git sparse-checkout set vc_software
+
+# 5. 확인
+ls
+
+
+-----------------------------------------------------
 
 vc(vehicle computer software) 전체 폴더 구조 및 파일 역할<br>
 (**systemd 관련은 아래 잘 읽고 수행할 것**)

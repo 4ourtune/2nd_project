@@ -1,0 +1,15 @@
+[Unit]
+Description=Test OTA Service
+After=network.target
+
+[Service]
+ExecStart=/home/ts5516/2nd_project/vc_software/apps/test/bin/test_app.sh
+WorkingDirectory=/home/ts5516/2nd_project/vc_software/apps/test
+Restart=always
+User=ts5516
+Group=ts5516
+StandardOutput=append:/home/ts5516/2nd_project/vc_software/apps/test/test_app.log
+StandardError=append:/home/ts5516/2nd_project/vc_software/apps/test/test_app.log
+
+[Install]
+WantedBy=multi-user.target
