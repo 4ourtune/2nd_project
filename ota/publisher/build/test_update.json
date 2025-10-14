@@ -1,0 +1,12 @@
+{
+  "version": "1.1.0",
+  "checksum": "22bd6e95fe86dea29a46cd0d949a438640ca592c0e816aac631b525d4aedc580",
+  "description": "테스트 앱 버전 2 업데이트",
+  "target": {
+    "process_check": "test",
+    "target_path": "/home/ts5516/2nd_project/vc_software/apps/test/bin/test_app.sh",
+    "backup_path": "/home/ts5516/2nd_project/vc_software/apps/ota/backups/test/",
+    "source_path": "http://192.168.45.166:8000/test_app_v2.sh"
+  },
+  "require_confirm": false
+}
