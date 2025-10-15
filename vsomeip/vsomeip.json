@@ -1,0 +1,33 @@
+{
+    "unicast" : "192.168.2.30",
+    "network" : "eth0",
+    "logging": {
+        "level": "debug",
+        "console": "true"
+    },
+    "applications": [
+        {
+            "name": "rpi_client_app",
+            "id": "0x5678"
+        }
+    ],
+    "services": [
+        {
+            "service": "0x0100",
+            "instance": "0x0001",
+            "unicast": "192.168.2.20",
+            "unreliable" : "30510"
+        },
+        {
+            "service": "0x0200",
+            "instance": "0x0001",
+            "unicast": "192.168.2.20",
+            "unreliable" : "30511"
+        }
+    ],
+    "routing": "rpi_client_app",
+    "service-discovery": {
+        "enable": "false"
+    }
+}
+
