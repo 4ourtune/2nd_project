@@ -79,12 +79,37 @@ def on_message(client, userdata, msg):
         payload = msg.payload.decode("utf-8")
         log(f"[MQTT] 메시지 수신 → {msg.topic}: {payload}")
         data = json.loads(payload)
+
         target = data["target"]
         version = data.get("version", "unknown")
         checksum = data.get("checksum", "")
+        require_confirm = data.get("require_confirm", False)
+
+        # require_confirm이 True면 사용자 확인 절차
+        if require_confirm:
+            print("\n=======================================")
+            print(f"새 버전({version}) 업데이트 요청이 있습니다.")
+            desc = data.get("description", "")
+            if desc:
+                print(f"설명: {desc}")
+            print("적용하시겠습니까? (y/n): ", end="", flush=True)
+
+            user_input = input().strip().lower()
+            if user_input != "y":
+                log("[OTA] 업데이트가 취소되었습니다.")
+                return
+            else:
+                log("[OTA] 사용자가 업데이트를 승인했습니다.")
+                apply_ota(target, version, checksum)
+                return
+
+        # require_confirm이 False면 즉시 적용
         apply_ota(target, version, checksum)
+
     except Exception as e:
         log(f"[MQTT] 메시지 처리 오류: {e}")
+
+
 
 if __name__ == "__main__":
     log("[OTA] OTA 서비스 시작됨 (MQTT 구독 중...)")
