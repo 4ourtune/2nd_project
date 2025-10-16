@@ -53,7 +53,7 @@ void EmerAlert_Update_Periodic (void)
 
     if (g_toggle_interval_ms > 0) // toggle_interval_ms > 0 -> toggle
     {
-        uint64_t cur_time_ms = getTimeMs();
+        uint64_t cur_time_ms = STM0_getTimeMs();
 
         if (cur_time_ms - last_toggle_time_ms >= (uint64_t) g_toggle_interval_ms)
         {
@@ -80,7 +80,7 @@ bool EmerAlert_Set_Interval (int64_t toggle_interval_ms)
 
     g_toggle_interval_ms = toggle_interval_ms;
 
-    latest_data.output_time_us = getTimeUs();
+    latest_data.output_time_us = STM0_getTimeUs();
     latest_data.interval_ms = toggle_interval_ms;
     data_ready = true;
 

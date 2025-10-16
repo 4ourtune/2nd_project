@@ -7,7 +7,7 @@
 
 static const float frequency = 100000000.0f; // 100MHz -> 10^8Hz
 
-uint64_t getTime10ns (void)
+uint64_t STM0_getTime10ns (void)
 {
     /* Read 64-bit System Timer */
     uint32_t upper1, lower, upper2;
@@ -25,17 +25,17 @@ uint64_t getTime10ns (void)
     return (((uint64_t) upper1) << 32) | lower;
 }
 
-uint64_t getTimeUs (void)
+uint64_t STM0_getTimeUs (void)
 {
     /* return microseconds */
-    uint64_t result = getTime10ns();
+    uint64_t result = STM0_getTime10ns();
     return result / (frequency / 1000000);
 }
 
-uint64_t getTimeMs (void)
+uint64_t STM0_getTimeMs (void)
 {
     /* return milliseconds */
-    uint64_t result = getTime10ns();
+    uint64_t result = STM0_getTime10ns();
     return result / (frequency / 1000);
 }
 
@@ -63,6 +63,6 @@ void Stm0_Init (void)
 void Stm0_InterruptAfter (uint64_t delay_us)
 {
     /* Set Compare register to current time + delay_us */
-    uint64_t cmp_val = (getTimeUs() + delay_us) * 100ULL;
+    uint64_t cmp_val = (STM0_getTimeUs() + delay_us) * 100ULL;
     MODULE_STM0.CMP[0].U = (uint32_t) cmp_val;
 }

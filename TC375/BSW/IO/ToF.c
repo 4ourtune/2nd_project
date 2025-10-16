@@ -32,7 +32,7 @@ void ToF_RxHandler (uint8_t byte)
 {
     if (byte == TOF_PACKET_HEADER)
     {
-        header_timestamp_us[rx_queue.tail] = getTimeUs();
+        header_timestamp_us[rx_queue.tail] = STM0_getTimeUs();
     }
 
     ByteQueue_Push(&rx_queue, byte);

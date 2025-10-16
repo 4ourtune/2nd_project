@@ -56,7 +56,7 @@ static void MotorController_SetSpeed (int left_speed, int right_speed)
     Motor_SetChA(right_speed, right_direction);
     Motor_SetChB(left_speed, left_direction);
 
-    latest_data.output_time_us = getTimeUs();
+    latest_data.output_time_us = STM0_getTimeUs();
     latest_data.motorChA_speed = right_speed;
     latest_data.motorChB_speed = left_speed;
     data_ready = true;
