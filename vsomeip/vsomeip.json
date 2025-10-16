@@ -11,23 +11,13 @@
             "id": "0x5678"
         }
     ],
-    "services": [
-        {
-            "service": "0x0100",
-            "instance": "0x0001",
-            "unicast": "192.168.2.20",
-            "unreliable" : "30510"
-        },
-        {
-            "service": "0x0200",
-            "instance": "0x0001",
-            "unicast": "192.168.2.20",
-            "unreliable" : "30511"
-        }
-    ],
     "routing": "rpi_client_app",
     "service-discovery": {
-        "enable": "false"
+        "enable": "true",
+	"multicast": "224.224.224.245",
+	"port" : "30490",
+	"protocol": "udp"
+
     }
 }
 

@@ -50,29 +50,57 @@ bool SOMEIPSD_Init (void)
 void SOMEIPSD_SendOfferService (unsigned char ip_a, unsigned char ip_b, unsigned char ip_c, unsigned char ip_d)
 {
     err_t err;
-    uint8 MSG_OfferService[] = {0xFF, 0xFF, 0x81, 0x00, /* SOMEIP Header */
-    0x00, 0x00, 0x00, 0x30, /* SOMEIP Header Length */
-    0x00, 0x00, 0x00, 0x01, /* Request ID */
-    0x01, 0x01, 0x02, 0x00, /* SOMEIP version information */
-    0xC0, 0x00, 0x00, 0x00, /* SOMEIP-SD Flags*/
-    0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x00, 0x10, 0x01, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x0A, 0x00, 0x00, 0x00,
-            0x01, 0x00, 0x00, 0x00, 0x0C, /* Options Array */
-            0x00, 0x09, 0x04, 0x00, 0xC0, 0xA8, 0x02, 0x14, /* IP */
-            0x00, 0x11, 0x77, 0x2D /* Port */
+    uint8 MSG_OfferService[] = {
+            /* SOME/IP Header */
+            0xFF, 0xFF, 0x81, 0x00,
+            0x00, 0x00, 0x00, 0x4C,
+            0x00, 0x00, 0x00, 0x00,
+            0x01, 0x01, 0x02, 0x00,
+            /* SD HEADER */
+            0x00, 0x00, 0x00, 0x00,
+            /* ENTRIES ARRAY LENGTH */
+            0x00, 0x00, 0x00, 0x20,
+            /* Entry 1 */
+            0x01, 0x00, 0x00, 0x10,
+            0x01, 0x00, 0x00, 0x01,
+            0x01, 0x00, 0x00, 0x0A,
+            0x00, 0x00, 0x00, 0x01,
+            /* Entry 2 */
+            0x01, 0x01, 0x00, 0x10,
+            0x02, 0x00, 0x00, 0x01,
+            0x01, 0x00, 0x00, 0x0A,
+            0x00, 0x00, 0x00, 0x01,
+            /* OPTIONS ARRAY LENGTH */
+            0x00, 0x00, 0x00, 0x18,
+            /* Option 1 */
+            0x00, 0x09, 0x04, 0x80,
+            0xC0, 0xA8, 0x02, 0x14,
+            0x00, 0x11, 0x77, 0x2E,
+            /* Option 2 */
+            0x00, 0x09, 0x04, 0x80,
+            0xC0, 0xA8, 0x02, 0x14,
+            0x00, 0x11, 0x77, 0x2F
     };
 
-    // set ip address from lwip
     uint8 *ip = Ifx_Lwip_getIpAddrPtr();
-    MSG_OfferService[48] = ip[0];
-    MSG_OfferService[49] = ip[1];
-    MSG_OfferService[50] = ip[2];
-    MSG_OfferService[51] = ip[3];
 
-    // set supported protocol for SOME/IP
-    MSG_OfferService[53] = 0x11;  // UDP only
-
-    MSG_OfferService[54] = (uint8) (PN_SERVICE_1 >> 8) & 0xff;
-    MSG_OfferService[55] = (uint8) PN_SERVICE_1 & 0xff;
+//    MSG_OfferService[64] = ip[0];
+//    MSG_OfferService[65] = ip[1];
+//    MSG_OfferService[66] = ip[2];
+//    MSG_OfferService[67] = ip[3];
+//
+//    MSG_OfferService[76] = ip[0];
+//    MSG_OfferService[77] = ip[1];
+//    MSG_OfferService[78] = ip[2];
+//    MSG_OfferService[79] = ip[3];
+//
+//    uint16_t listen_port_1 = (uint16_t) PN_SERVICE_1;
+//    MSG_OfferService[68] = (uint8) (listen_port_1 >> 8);
+//    MSG_OfferService[69] = (uint8) listen_port_1;
+//
+//    uint16_t listen_port_2 = (uint16_t) PN_SERVICE_2;
+//    MSG_OfferService[80] = (uint8) (listen_port_2 >> 8);
+//    MSG_OfferService[81] = (uint8) listen_port_2;
 
     struct pbuf *txbuf = pbuf_alloc(PBUF_TRANSPORT, sizeof(MSG_OfferService), PBUF_RAM);
     if (txbuf != NULL)
@@ -88,10 +116,12 @@ void SOMEIPSD_SendOfferService (unsigned char ip_a, unsigned char ip_b, unsigned
         if (err == ERR_OK)
         {
             my_printf("Send Offer Service Success !! \n");
+            my_printf("Offering 0x0100/0x0200 from %d.%d.%d.%d to %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3], ip_a,
+                    ip_b, ip_c, ip_d);
         }
         else
         {
-            my_printf("Send Offer Service Failed !! \n");
+            my_printf("Send Offer Service Failed !! (Error: %d)\n", err);
         }
         udp_disconnect(g_SOMEIPSD_PCB);
 
