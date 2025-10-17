@@ -4,7 +4,7 @@ import time
 import subprocess
 import json
 import paho.mqtt.client as mqtt
-from config import BROKER_HOST, BROKER_PORT, TOPIC, INBOX_DIR
+from config import BROKER_HOST, BROKER_PORT, TOPIC, INBOX_DIR, REQUIRE_CONFIRM_DEFAULT
 from utils import log, download_file, verify_checksum
 
 def load_versions():
@@ -83,7 +83,12 @@ def on_message(client, userdata, msg):
         target = data["target"]
         version = data.get("version", "unknown")
         checksum = data.get("checksum", "")
-        require_confirm = data.get("require_confirm", False)
+
+        require_confirm = data.get("require_confirm")
+        if require_confirm is None:
+            require_confirm = REQUIRE_CONFIRM_DEFAULT
+        else:
+            require_confirm = bool(require_confirm)
 
         # require_confirm이 True면 사용자 확인 절차
         if require_confirm:
@@ -93,17 +98,19 @@ def on_message(client, userdata, msg):
             if desc:
                 print(f"설명: {desc}")
             print("적용하시겠습니까? (y/n): ", end="", flush=True)
+            try:
+                user_input = input().strip().lower()
+            except EOFError:
+                log("[OTA] 입력 스트림이 없어 업데이트를 진행하지 않습니다.")
+                return
 
-            user_input = input().strip().lower()
-            if user_input != "y":
+            if user_input not in ("y", "yes"):
                 log("[OTA] 업데이트가 취소되었습니다.")
                 return
-            else:
-                log("[OTA] 사용자가 업데이트를 승인했습니다.")
-                apply_ota(target, version, checksum)
-                return
 
-        # require_confirm이 False면 즉시 적용
+            log("[OTA] 사용자가 업데이트를 승인했습니다.")
+
+        # 확인이 필요 없거나, 승인되었으므로 적용
         apply_ota(target, version, checksum)
 
     except Exception as e:
@@ -116,8 +123,11 @@ if __name__ == "__main__":
     client = mqtt.Client()
     client.on_connect = on_connect
     client.on_message = on_message
-    try:
-        client.connect(BROKER_HOST, BROKER_PORT, 60)
-        client.loop_forever()
-    except Exception as e:
-        log(f"[OTA] MQTT 연결 실패: {e}")
+    backoff = 5
+    while True:
+        try:
+            client.connect(BROKER_HOST, BROKER_PORT, 60)
+            client.loop_forever()
+        except Exception as e:
+            log(f"[OTA] MQTT 연결 실패: {e} — {backoff}초 후 재시도")
+            time.sleep(backoff)

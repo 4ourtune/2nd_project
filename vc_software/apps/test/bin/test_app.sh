@@ -1,9 +1,9 @@
 #!/bin/bash
-LOG_FILE="/home/hj/2nd_project/vc_software/apps/test/test_app.log"
+LOG_FILE="/home/hj/vc_software/apps/test/test_app.log"
 
-echo "[test_app_v4] 실행됨 - $(date)" >> "$LOG_FILE"
+echo "[test_app_v6] 실행됨 - $(date)" >> "$LOG_FILE"
 
 while true; do
-    echo "[test_app_v4] heartbeat - $(date)" >> "$LOG_FILE"
+    echo "[test_app_v6] heartbeat - $(date)" >> "$LOG_FILE"
     sleep 10
 done
