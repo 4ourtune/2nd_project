@@ -8,24 +8,59 @@ void LED_Init (void)
     GPIO_InitLed();
 
     /* Set initial state */
-    GPIO_SetLed(1, false);
-    GPIO_SetLed(2, false);
+    for (int i = 1; i <= 4; i++)
+    {
+        GPIO_SetLed(i, false);
+    }
 }
 
-void LED_Toggle (void)
+void LED_Toggle (LedSide side)
 {
-    GPIO_ToggleLed(1);
-    GPIO_ToggleLed(2);
+    switch (side)
+    {
+        case LED_BACK :
+            GPIO_ToggleLed(3);
+            GPIO_ToggleLed(4);
+            break;
+        case LED_FRONT_DOWN :
+            GPIO_ToggleLed(2);
+            break;
+        case LED_FRONT_UP :
+            GPIO_ToggleLed(1);
+            break;
+    }
 }
 
-void LED_On (void)
+void LED_On (LedSide side)
 {
-    GPIO_SetLed(1, true);
-    GPIO_SetLed(2, true);
+    switch (side)
+    {
+        case LED_BACK :
+            GPIO_SetLed(3, true);
+            GPIO_SetLed(4, true);
+            break;
+        case LED_FRONT_DOWN :
+            GPIO_SetLed(2, true);
+            break;
+        case LED_FRONT_UP :
+            GPIO_SetLed(1, true);
+            break;
+    }
 }
 
-void LED_Off (void)
+void LED_Off (LedSide side)
 {
-    GPIO_SetLed(1, false);
-    GPIO_SetLed(2, false);
+    switch (side)
+    {
+        case LED_BACK :
+            GPIO_SetLed(3, false);
+            GPIO_SetLed(4, false);
+            break;
+        case LED_FRONT_DOWN :
+            GPIO_SetLed(2, false);
+            break;
+        case LED_FRONT_UP :
+            GPIO_SetLed(1, false);
+            break;
+    }
 }

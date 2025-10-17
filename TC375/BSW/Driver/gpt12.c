@@ -63,7 +63,7 @@ void Gpt1_Init (void)
 IFX_INTERRUPT(IsrGpt2T6Handler, 0, ISR_PRIORITY_GPT2T6_TIMER);
 void IsrGpt2T6Handler (void)
 {
-    Buzzer_Buzz(500);
+    Buzzer_Buzz();
 }
 
 void Run_Gpt12_T6 (void)

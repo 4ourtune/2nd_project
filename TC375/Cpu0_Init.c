@@ -9,6 +9,7 @@
 #include "led.h"
 #include "motor.h"
 #include "my_stdio.h"
+#include "PR.h"
 #include "tof.h"
 #include "ultrasonic.h"
 
@@ -38,6 +39,7 @@ static bool module_init (void)
     LED_Init();
     Motor_Init();
     MyStdio_Init();
+    PR_Init();
 
     /* Define a MAC Address */
     eth_addr_t ethAddr = {.addr[0] = 0x00, .addr[1] = 0x00, .addr[2] = 0x0c, .addr[3] = 0x11, .addr[4] = 0x11, .addr[5

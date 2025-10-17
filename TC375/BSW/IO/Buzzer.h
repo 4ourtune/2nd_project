@@ -4,8 +4,9 @@
 #include <stdbool.h>
 
 void Buzzer_Init (void);
-void Buzzer_Buzz (int cntMax);
+bool Buzzer_SetFrequency (int f);
 void Buzzer_On (void);
 void Buzzer_Off (void);
+void Buzzer_Buzz (void);
 
 #endif /* BSW_IO_BUZZER_H_ */

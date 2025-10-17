@@ -22,10 +22,15 @@ void GPIO_ToggleBuzzer (void)
 /* For led */
 void GPIO_InitLed (void)
 {
-    MODULE_P21.IOCR4.B.PC4 = 0x10;
+    MODULE_P02.IOCR4.B.PC4 = 0x10;
+    MODULE_P02.IOCR4.B.PC5 = 0x10;
     MODULE_P21.IOCR0.B.PC0 = 0x10;
-    MODULE_P21.OUT.B.P4 = 0;
+    MODULE_P21.IOCR4.B.PC4 = 0x10;
+
+    MODULE_P02.OUT.B.P4 = 0;
+    MODULE_P02.OUT.B.P5 = 0;
     MODULE_P21.OUT.B.P0 = 0;
+    MODULE_P21.OUT.B.P4 = 0;
 }
 
 void GPIO_SetLed (int led_num, bool state)
@@ -33,10 +38,16 @@ void GPIO_SetLed (int led_num, bool state)
     switch (led_num)
     {
         case 1 :
-            MODULE_P21.OUT.B.P4 = state;
+            MODULE_P02.OUT.B.P4 = state;
             break;
         case 2 :
+            MODULE_P02.OUT.B.P5 = state;
+            break;
+        case 3 :
             MODULE_P21.OUT.B.P0 = state;
+            break;
+        case 4 :
+            MODULE_P21.OUT.B.P4 = state;
             break;
     }
 }
@@ -46,10 +57,16 @@ void GPIO_ToggleLed (int led_num)
     switch (led_num)
     {
         case 1 :
-            MODULE_P21.OUT.B.P4 ^= 1;
+            MODULE_P02.OUT.B.P4 ^= 1;
             break;
         case 2 :
+            MODULE_P02.OUT.B.P5 ^= 1;
+            break;
+        case 3 :
             MODULE_P21.OUT.B.P0 ^= 1;
+            break;
+        case 4 :
+            MODULE_P21.OUT.B.P4 ^= 1;
             break;
     }
 }
