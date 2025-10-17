@@ -1,0 +1,5 @@
+vin=2HGCM82633A123459
+model=Raspberry Pi Test Rig
+device_id=RASPBERRY_PI_001
+x_vehicle_secret=LsV4TyyxmFwLINqg4vwAWsVIsqUI-VGpiGenQxx-Jdc
+x_vehicle_id=6
