@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 void Buzzer_Init (void);
-void Buzzer_Buzz (void);
+void Buzzer_Buzz (int cntMax);
 void Buzzer_On (void);
 void Buzzer_Off (void);
 

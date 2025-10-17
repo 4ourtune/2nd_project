@@ -100,3 +100,8 @@ void GPIO_SetUltTrig (bool state)
 {
     MODULE_P10.OUT.B.P4 = state;
 }
+
+void GPIO_ToggleUltTrig (void)
+{
+    MODULE_P10.OUT.B.P4 ^= 1;
+}

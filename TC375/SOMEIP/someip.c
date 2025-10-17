@@ -19,6 +19,8 @@
 
 #include "output_status.h"
 
+#include "serialize_data.h"
+
 #if LWIP_UDP
 
 struct udp_pcb *g_SOMEIP_SERVICE1_PCB;
@@ -66,35 +68,33 @@ void SOMEIP_Service1_Callback (void *arg, struct udp_pcb *upcb, struct pbuf *p, 
 
                         if (MethodID == 0x0101U)
                         {
-                            // ToF 센서 데이터 가져오기
-                            ToF_GetLatestData(&tof_latest_data);
-
                             // Payload에 ToF 데이터 추가
                             txLen = 16;  // SOME/IP 헤더 크기
 
+                            // ToF 센서 데이터 가져오기
+                            ToF_GetLatestData(&tof_latest_data);
+                            my_printf("ToF: dist=%f, t=%llu\n", tof_latest_data.distance_m,
+                                    tof_latest_data.received_time_us);
+
                             // ToF 데이터 구조체를 바이트 배열로 복사
-                            memcpy(&txBuf[txLen], &tof_latest_data, sizeof(ToFData_t));
-                            txLen += sizeof(ToFData_t);
+                            txLen = Serialize_ToFData(txBuf, txLen, &tof_latest_data);
                         }
                         else if (MethodID == 0x0102U)
                         {
-                            // 초음파 센서 데이터 가져오기
-                            for (int i = 0; i < ULTRASONIC_COUNT; i++)
-                            {
-                                Ultrasonic_GetLatestData(i, &ult_latest_data[i]);
-                            }
-
                             // Payload에 초음파 센서 데이터 추가
                             txLen = 16;  // SOME/IP 헤더 크기
 
-                            // 초음파 센서 개수 추가 (옵션)
+                            // 초음파 센서 개수 추가
                             txBuf[txLen++] = ULTRASONIC_COUNT;
 
-                            // 모든 초음파 센서 데이터를 바이트 배열로 복사
                             for (int i = 0; i < ULTRASONIC_COUNT; i++)
                             {
-                                memcpy(&txBuf[txLen], &ult_latest_data[i], sizeof(UltrasonicData_t));
-                                txLen += sizeof(UltrasonicData_t);
+                                // 초음파 센서 데이터 가져오기
+                                Ultrasonic_GetLatestData(i, &ult_latest_data[i]);
+                                my_printf("Ult%d: dist_raw=%d, t=%llu\n", i, ult_latest_data[i].dist_raw_mm,
+                                        ult_latest_data[i].received_time_us);
+                                // 초음파 센서 데이터를 바이트 배열로 복사
+                                txLen = Serialize_UltrasonicData(txBuf, txLen, &ult_latest_data[i]);
                             }
                         }
 
@@ -205,15 +205,16 @@ void SOMEIP_Service2_Callback (void *arg, struct udp_pcb *upcb, struct pbuf *p, 
                                 // 모터 컨트롤러 최신 데이터 가져오기
                                 MotorController_GetLatestData(&motor_controller_latest_data);
                             }
+                            my_printf("Motor Control: chA=%d, chB=%d, t=%llu\n",
+                                    motor_controller_latest_data.motorChA_speed,
+                                    motor_controller_latest_data.motorChB_speed,
+                                    motor_controller_latest_data.output_time_us);
 
                             // Response payload 구성
                             txLen = 16;  // SOME/IP 헤더 크기
 
                             // 모터 컨트롤러 데이터 추가
-                            memcpy(&txBuf[txLen], &motor_controller_latest_data, sizeof(MotorControllerData_t));
-                            txLen += sizeof(MotorControllerData_t);
-
-                            my_printf("Motor Control: x=%d, y=%d\n", motor_x, motor_y);
+                            txLen = Serialize_MotorControllerData(txBuf, txLen, &motor_controller_latest_data);
                         }
                         else if (MethodID == 0x0202U)
                         {
@@ -233,15 +234,14 @@ void SOMEIP_Service2_Callback (void *arg, struct udp_pcb *upcb, struct pbuf *p, 
                                 // Emergency Alert 최신 데이터 가져오기
                                 EmerAlert_GetLatestData(&emerAlert_latest_data);
                             }
+                            my_printf("Emergency Alert Control: cycle=%lld ms t=%llu\n",
+                                    emerAlert_latest_data.interval_ms, emerAlert_latest_data.output_time_us);
 
                             // Response payload 구성
                             txLen = 16;  // SOME/IP 헤더 크기
 
                             // Emergency Alert 데이터 추가
-                            memcpy(&txBuf[txLen], &emerAlert_latest_data, sizeof(EmerAlertData_t));
-                            txLen += sizeof(EmerAlertData_t);
-
-                            my_printf("Emergency Alert Control: cycle=%lld ms\n", emerAlert_cycle_ms);
+                            txLen = Serialize_EmerAlertData(txBuf, txLen, &emerAlert_latest_data);
                         }
 
                         // SOME/IP Length 필드 업데이트 (Byte 4-7)

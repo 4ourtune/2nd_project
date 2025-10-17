@@ -44,6 +44,18 @@ bool Ultrasonic_Init (int buffer_size, int max_events)
     return true;
 }
 
+void Ultrasonic_Trigger (int cntMax)
+{
+    static int cntDelay = 0;
+
+    if (cntDelay < 2)
+    {
+        GPIO_ToggleUltTrig();
+    }
+
+    cntDelay = (cntDelay + 1) % cntMax;
+}
+
 void Ultrasonic_EchoHandler (UltrasonicSide side, bool input_pin_state)
 {
     if (side >= ULTRASONIC_COUNT)

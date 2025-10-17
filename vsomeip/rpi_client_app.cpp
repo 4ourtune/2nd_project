@@ -96,7 +96,7 @@ void on_message(const std::shared_ptr<vsomeip::message>& response_msg) {
         << ", Method 0x" << method_id << std::dec << " (Length: " << length << " bytes) ---" << std::endl;
 
     if (service_id == SERVICE_ID_SENSOR) {
-        if (method_id == METHOD_ID_TOF && length >= sizeof(ToFData_t)) {
+        if (method_id == METHOD_ID_TOF) {
             // 응답 페이로드: ToFData_t (20 bytes)
             size_t offset = 0;
             uint8_t id = get_value_from_payload<uint8_t>(data, offset); offset += 1;
@@ -235,10 +235,9 @@ void request_alert_control(int64_t cycle_ms) {
 // 요청 로직을 별도의 스레드에서 실행
 void client_routine() {
     using namespace std::chrono;
-    std::this_thread::sleep_for(milliseconds(100)); // 스택 안정화 대기
-
-    std::cout << "Waiting 1 second for vsomeip stack to stabilize..." << std::endl;
-    std::this_thread::sleep_for(seconds(1));
+    
+    std::cout << "Waiting 4 second for vsomeip stack to stabilize..." << std::endl;
+    std::this_thread::sleep_for(seconds(4));
 
     // --- 1. Sensor Service (0x0100) 요청 ---
     request_sensor_data(SERVICE_ID_SENSOR, METHOD_ID_TOF); // ToF Data

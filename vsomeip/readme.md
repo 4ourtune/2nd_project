@@ -27,7 +27,7 @@ export VSOMEIP_APPLICATION_NAME=rpi_client_app
 ❗ Make sure that your device has been configured for receiving multicast messages
 e.g.
 ```
-route add -nv  224.224.224.245 dev eth0
+sudo route add -nv  224.224.224.245 dev eth0
 ```
 or similar; that depends on teh name of your ethernet device.
 

@@ -14,14 +14,16 @@ void Buzzer_Init (void)
     Stop_Gpt12_T6();
 }
 
-void Buzzer_Buzz (void)
+void Buzzer_Buzz (int cntMax)
 {
     static int cntDelay = 0;
-    cntDelay = (cntDelay + 1) % 500;
-    if (cntDelay == 1)
+
+    if (cntDelay == 0)
     {
         GPIO_ToggleBuzzer();
     }
+
+    cntDelay = (cntDelay + 1) % cntMax;
 }
 
 void Buzzer_On (void)
