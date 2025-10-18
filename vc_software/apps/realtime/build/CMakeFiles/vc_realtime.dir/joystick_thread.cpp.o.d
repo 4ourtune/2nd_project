@@ -1,6 +1,7 @@
 CMakeFiles/vc_realtime.dir/joystick_thread.cpp.o: \
- /home/hj/vc_software/apps/realtime/joystick_thread.cpp \
- /usr/include/stdc-predef.h /home/hj/vc_software/apps/realtime/shared.h \
+ /home/ts5516/2nd_project/vc_software/apps/realtime/joystick_thread.cpp \
+ /usr/include/stdc-predef.h \
+ /home/ts5516/2nd_project/vc_software/apps/realtime/shared.h \
  /usr/include/c++/12/mutex /usr/include/c++/12/tuple \
  /usr/include/c++/12/bits/stl_pair.h /usr/include/c++/12/type_traits \
  /usr/include/aarch64-linux-gnu/c++/12/bits/c++config.h \
@@ -145,17 +146,16 @@ CMakeFiles/vc_realtime.dir/joystick_thread.cpp.o: \
  /usr/include/c++/12/ext/atomicity.h \
  /usr/include/aarch64-linux-gnu/c++/12/bits/atomic_word.h \
  /usr/include/aarch64-linux-gnu/sys/single_threaded.h \
- /usr/include/c++/12/atomic /usr/include/c++/12/bits/atomic_base.h \
- /usr/include/c++/12/bits/atomic_lockfree_defines.h \
- /home/hj/vc_software/apps/realtime/vc_common.h \
+ /home/ts5516/2nd_project/vc_software/apps/realtime/vc_common.h \
  /usr/include/c++/12/cstring /usr/include/string.h /usr/include/strings.h \
  /usr/include/c++/12/chrono /usr/include/c++/12/thread \
  /usr/include/c++/12/bits/std_thread.h \
  /usr/include/c++/12/bits/unique_ptr.h \
  /usr/include/c++/12/bits/this_thread_sleep.h \
  /usr/include/aarch64-linux-gnu/sys/time.h \
- /home/hj/vc_software/apps/realtime/config.h /usr/include/arpa/inet.h \
- /usr/include/netinet/in.h /usr/include/aarch64-linux-gnu/sys/socket.h \
+ /home/ts5516/2nd_project/vc_software/apps/realtime/config.h \
+ /usr/include/arpa/inet.h /usr/include/netinet/in.h \
+ /usr/include/aarch64-linux-gnu/sys/socket.h \
  /usr/include/aarch64-linux-gnu/bits/types/struct_iovec.h \
  /usr/include/aarch64-linux-gnu/bits/socket.h \
  /usr/include/aarch64-linux-gnu/bits/socket_type.h \
