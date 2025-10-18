@@ -45,6 +45,13 @@ class KeyStore:
         with self._lock:
             return dict(self._keys)
 
+    def replace_all(self, data: Dict[str, Dict[str, Any]]) -> None:
+        """Replace the entire key store with provided mapping."""
+        with self._lock:
+            self._keys = dict(data)
+            self._flush()
+            LOGGER.info("Replaced key store contents with %d entries", len(self._keys))
+
     # Internal helpers ---------------------------------------------------
     def _load_from_disk(self) -> None:
         if not self.path.exists():

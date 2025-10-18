@@ -164,7 +164,9 @@ def main(argv: list[str]) -> int:
     base_url_input = args.base_url or _default_base_url()
     base_url = _ensure_scheme(base_url_input.rstrip("/"))
 
-    payload: Dict[str, Any] = {}
+    payload: Dict[str, Any] = {
+        "vehicleId": header_vehicle_id,
+    }
     if device_id:
         payload["deviceId"] = device_id
     if args.owner_candidate is not None:
@@ -185,6 +187,13 @@ def main(argv: list[str]) -> int:
         print("Payload:")
         print(json.dumps(payload, indent=2))
         return 0
+
+    print("Requesting PIN with:")
+    print(f"  vehicleId (header/payload): {header_vehicle_id}")
+    if device_id:
+        print(f"  deviceId: {device_id}")
+    else:
+        print("  deviceId: <omitted>")
 
     try:
         response = requests.post(

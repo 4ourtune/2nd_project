@@ -168,6 +168,41 @@ class PairingManager:
         self._pending_handshake: Optional[PkiHandshakeContext] = None
         self._last_session_id: Optional[str] = None
         self._load_cached_pki_session()
+        self.sync_keys_from_server("startup")
+
+    def sync_keys_from_server(self, reason: str = "manual", *, allow_fail: bool = True) -> bool:
+        """Synchronize digital keys with the backend."""
+        if self.api_client is None:
+            LOGGER.debug("Key sync skipped (%s): API client unavailable", reason)
+            return False
+        try:
+            payload = self.api_client.fetch_keys(header_vehicle_id=self.header_vehicle_id)
+        except PairingApiError as exc:
+            message = f"Key sync ({reason}) failed: {exc}"
+            if allow_fail:
+                LOGGER.warning(message)
+                return False
+            raise PairingApiError(message) from exc
+
+        keys = payload.get("keys", [])
+        mapping: Dict[str, Dict[str, Any]] = {}
+        for entry in keys:
+            if not isinstance(entry, dict):
+                continue
+            key_id = entry.get("keyId") or entry.get("id")
+            if key_id is None:
+                continue
+            mapping[str(key_id)] = entry
+
+        self.key_store.replace_all(mapping)
+        logger_fn = LOGGER.info if mapping else LOGGER.warning
+        logger_fn(
+            "Key sync (%s) completed with %d entries (vehicleId=%s)",
+            reason,
+            len(mapping),
+            self.header_vehicle_id,
+        )
+        return True
 
     def build_challenge(self) -> Dict[str, Any]:
         """Return a fresh pairing challenge payload."""
@@ -202,6 +237,7 @@ class PairingManager:
                 vehicle_public_key = None
             challenge = {
                 "deviceId": self.device_id,
+                "vehicleId": self.header_vehicle_id,
                 "sessionId": session.session_id,
                 "nonce": nonce,
                 "issuedAt": issued_at,
@@ -356,6 +392,7 @@ class PairingManager:
             self._publish_pin_session_state(publish_state)
         self._disable_pairing_flag()
         self._stop_pin_status_poller()
+        self.sync_keys_from_server("pairing_result")
         response = {
             "status": "OK",
             "message": "Key stored",
@@ -973,7 +1010,18 @@ class PairingManager:
                 self._pki_state = state
             LOGGER.info("Restored cached PKI session %s from %s", session_id, path)
         except Exception as exc:  # pylint: disable=broad-except
-            LOGGER.warning("Failed to restore cached PKI session state: %s", exc)
+            message = str(exc)
+            if "Cached PKI session missing required fields" in message:
+                LOGGER.info("Discarding stale PKI session cache at %s (%s)", path, message)
+                try:
+                    path.unlink(missing_ok=True)  # type: ignore[call-arg]
+                except TypeError:
+                    try:
+                        path.unlink()
+                    except OSError:
+                        pass
+            else:
+                LOGGER.warning("Failed to restore cached PKI session state: %s", exc)
             self._cached_pki_payload = None
 
     def _export_pki_session_state(self) -> None:

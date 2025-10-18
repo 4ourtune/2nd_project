@@ -200,6 +200,19 @@ class PairingApiClient:
             raise PairingApiError(f"Failed to contact pairing API: {exc}") from exc
         self._parse_response(response)
 
+    def fetch_keys(self, header_vehicle_id: Optional[str] = None) -> Dict[str, Any]:
+        """GET /api/device/keys to synchronize digital key metadata."""
+        url = f"{self.base_url}/api/device/keys"
+        headers = self._vehicle_headers(header_vehicle_id)
+        try:
+            response = requests.get(url, headers=headers, timeout=self.timeout)
+        except RequestException as exc:
+            raise PairingApiError(f"Failed to contact pairing API for keys: {exc}") from exc
+        data = self._parse_response(response)
+        if "keys" not in data or not isinstance(data["keys"], list):
+            raise PairingApiError("Key sync response missing 'keys' list")
+        return data
+
     # Helpers -----------------------------------------------------------
     def _vehicle_headers(self, header_vehicle_id: Optional[str] = None) -> Dict[str, str]:
         vehicle_id = header_vehicle_id or self.vehicle_header_id

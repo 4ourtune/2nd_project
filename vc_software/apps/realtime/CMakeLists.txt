@@ -11,6 +11,7 @@ add_executable(vc_realtime
   sensor_thread.cpp
   control_thread.cpp
   comm_thread.cpp
+  ipc_server.cpp
 )
 
 target_link_libraries(vc_realtime pthread)

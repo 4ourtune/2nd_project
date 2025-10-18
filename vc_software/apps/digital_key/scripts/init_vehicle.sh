@@ -237,6 +237,10 @@ if [[ ${#SERVER_ARGS[@]} -gt 0 ]]; then
   CMD+=("${SERVER_ARGS[@]}")
 fi
 
+if command -v stdbuf >/dev/null 2>&1; then
+  CMD=("stdbuf" "-oL" "-eL" "${CMD[@]}")
+fi
+
 start_ble_server() {
   log "Starting BLE server with: ${CMD[*]}"
   log "BLE log: $LOG_FILE"

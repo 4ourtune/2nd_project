@@ -3,6 +3,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/vc_realtime.dir/comm_thread.cpp.o.d"
   "CMakeFiles/vc_realtime.dir/control_thread.cpp.o"
   "CMakeFiles/vc_realtime.dir/control_thread.cpp.o.d"
+  "CMakeFiles/vc_realtime.dir/ipc_server.cpp.o"
+  "CMakeFiles/vc_realtime.dir/ipc_server.cpp.o.d"
   "CMakeFiles/vc_realtime.dir/joystick_thread.cpp.o"
   "CMakeFiles/vc_realtime.dir/joystick_thread.cpp.o.d"
   "CMakeFiles/vc_realtime.dir/main.cpp.o"

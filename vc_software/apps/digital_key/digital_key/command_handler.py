@@ -15,13 +15,17 @@ from .pki import (
     sign_vehicle_response,
     coerce_public_key_pem,
 )
+try:
+    from ipc_client import send_cmd as ipc_send_cmd  # type: ignore
+except ImportError:  # pragma: no cover - IPC optional during tests
+    ipc_send_cmd = None
 
 if TYPE_CHECKING:
     from .pairing import PairingManager
 
 LOGGER = logging.getLogger(__name__)
 
-VEHICLE_COMMANDS = {"UNLOCK", "LOCK", "START"}
+VEHICLE_COMMANDS = {"UNLOCK", "LOCK", "START", "GET_ALL"}
 CERT_REQUEST_TYPE = "cert_request"
 SECURE_COMMAND_TYPE = "secure_command"
 PKI_COMMAND_TYPE = "pki_command"
@@ -82,6 +86,9 @@ class CommandHandler:
             )
             return True, response
 
+        if request_type == "get_all":
+            return self._handle_vehicle_command("GET_ALL", payload)
+
         if request_type == SECURE_COMMAND_TYPE:
             return self._handle_secure_command(payload)
 
@@ -101,30 +108,65 @@ class CommandHandler:
 
     def _handle_vehicle_command(self, command: str, payload: Dict[str, Any]) -> Tuple[bool, Dict[str, Any]]:
         key_id = str(payload.get("keyId", ""))
-        try:
-            timestamp = int(payload.get("timestamp", 0))
-        except (TypeError, ValueError) as exc:
-            raise ValueError("Invalid timestamp") from exc
+        command_requires_key = command != "GET_ALL"
 
-        if not key_id:
-            raise ValueError("Missing keyId")
-        if not self.key_store.get_key(key_id):
-            raise ValueError(f"Unknown keyId: {key_id}")
-        if not timestamp:
-            raise ValueError("Missing timestamp")
+        if command_requires_key:
+            try:
+                timestamp = int(payload.get("timestamp", 0))
+            except (TypeError, ValueError) as exc:
+                raise ValueError("Invalid timestamp") from exc
+
+            if not key_id:
+                raise ValueError("Missing keyId")
+            if not self.key_store.get_key(key_id):
+                synced = False
+                if self.pairing_manager is not None:
+                    synced = self.pairing_manager.sync_keys_from_server("lookup_miss")
+                if not self.key_store.get_key(key_id):
+                    if synced:
+                        raise ValueError(f"Unknown keyId after sync: {key_id}")
+                    raise ValueError(f"Unknown keyId: {key_id}")
+            if not timestamp:
+                raise ValueError("Missing timestamp")
+        else:
+            timestamp = int(time.time() * 1000)
 
         # TODO: verify HMAC/PKI signature when crypto is defined.
 
-        # For now we simulate hardware control with logs.
-        LOGGER.info("Executing %s for key %s", command, key_id)
-        self._simulate_actuation(command)
+        LOGGER.info("Dispatching %s via IPC for key %s", command, key_id or "n/a")
 
-        response = {
+        action_ok, action_data = self._dispatch_ipc_command(command)
+        if not action_ok:
+            error_detail = action_data.get("error") or action_data.get("rawResponse") or "ipc_failed"
+            return False, {
+                "success": False,
+                "command": command,
+                "timestamp": int(time.time() * 1000),
+                "error": error_detail,
+            }
+
+        vehicle_state = self._extract_vehicle_state(action_data)
+        if command != "GET_ALL" and not vehicle_state:
+            status_ok, status_data = self._dispatch_ipc_command("GET_ALL")
+            if status_ok:
+                vehicle_state = self._extract_vehicle_state(status_data)
+            else:
+                LOGGER.warning(
+                    "Failed to query vehicle state after %s: %s",
+                    command,
+                    status_data.get("rawResponse"),
+                )
+
+        response: Dict[str, Any] = {
             "success": True,
             "command": command,
             "timestamp": int(time.time() * 1000),
             "data": {"commandProcessedAt": timestamp},
         }
+        if vehicle_state:
+            response["vehicleState"] = vehicle_state
+        if action_data.get("rawResponse"):
+            response.setdefault("metadata", {})["ipcRaw"] = action_data["rawResponse"]
         return True, response
 
     @staticmethod
@@ -138,9 +180,37 @@ class CommandHandler:
     def encode_payload(data: Dict[str, Any]) -> bytes:
         return json.dumps(data).encode('utf-8')
 
+    def _dispatch_ipc_command(self, command: str) -> Tuple[bool, Dict[str, Any]]:
+        """Send command to realtime process and parse minimal status details."""
+        if ipc_send_cmd is None:
+            return False, {"error": "ipc_unavailable"}
+        ok, resp = ipc_send_cmd(command, "DK")
+        parsed: Dict[str, Any] = {"rawResponse": resp}
+        if not ok:
+            parsed["error"] = resp
+            return False, parsed
+        tokens = resp.strip().split(';')
+        for token in tokens:
+            token = token.strip()
+            if not token:
+                continue
+            if '=' in token:
+                key, value = token.split('=', 1)
+                parsed[key.upper()] = value
+            else:
+                parsed.setdefault("_flags", []).append(token.upper())
+        return True, parsed
+
     @staticmethod
-    def _simulate_actuation(command: str) -> None:
-        LOGGER.debug("Simulating hardware action for %s", command)
+    def _extract_vehicle_state(parsed: Dict[str, Any]) -> Dict[str, Any]:
+        state: Dict[str, Any] = {}
+        locked = parsed.get("LOCKED")
+        engine = parsed.get("ENGINE")
+        if locked is not None:
+            state["locked"] = str(locked).strip() in {"1", "true", "TRUE"}
+        if engine is not None:
+            state["engineOn"] = str(engine).strip() in {"1", "true", "TRUE"}
+        return state
 
     # Secure command helpers -------------------------------------------
     def _handle_secure_command(self, payload: Dict[str, Any]) -> Tuple[bool, Dict[str, Any]]:
