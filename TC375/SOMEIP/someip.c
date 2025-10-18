@@ -8,291 +8,45 @@
 
 #include <string.h>
 
-#include "etc.h"
-
+#include "Buzzer.h"
+#include "LED.h"
 #include "my_stdio.h"
-#include "tof.h"
-#include "ultrasonic.h"
+#include "PR.h"
+#include "ToF.h"
+#include "Ultrasonic.h"
 
 #include "emer_alert.h"
 #include "motor_controller.h"
-
-#include "output_status.h"
 
 #include "serialize_data.h"
 
 #if LWIP_UDP
 
+static bool SOMEIP_UPCB_Init (struct udp_pcb *g_SOMEIP_SERVICE_PCB, uint16_t port, udp_recv_fn recv);
+void SOMEIP_Service1_Callback (void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_t *addr, uint16_t port);
+void SOMEIP_Service2_Callback (void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_t *addr, uint16_t port);
+void SOMEIP_Service3_Callback (void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_t *addr, uint16_t port);
+static inline void SOMEIP_Update_Length (uint8_t *txBuf, uint16_t txLen);
+static void SOMEIP_Send_Response (struct udp_pcb *upcb, uint8_t *txBuf, uint16_t txLen, const ip_addr_t *addr,
+        uint16_t port);
+
 struct udp_pcb *g_SOMEIP_SERVICE1_PCB;
 struct udp_pcb *g_SOMEIP_SERVICE2_PCB;
+struct udp_pcb *g_SOMEIP_SERVICE3_PCB;
 
-void SOMEIP_Service1_Callback (void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_t *addr, uint16 port)
+bool SOMEIP_Init (void)
 {
-    static ToFData_t tof_latest_data;
-    static UltrasonicData_t ult_latest_data[ULTRASONIC_COUNT];
+    if (!SOMEIP_UPCB_Init(g_SOMEIP_SERVICE1_PCB, PN_SERVICE_1, (void*) SOMEIP_Service1_Callback))
+        return false;
+    if (!SOMEIP_UPCB_Init(g_SOMEIP_SERVICE2_PCB, PN_SERVICE_2, (void*) SOMEIP_Service2_Callback))
+        return false;
+    if (!SOMEIP_UPCB_Init(g_SOMEIP_SERVICE3_PCB, PN_SERVICE_3, (void*) SOMEIP_Service3_Callback))
+        return false;
 
-    uint16 ServiceID = 0;
-    uint16 MethodID = 0;
-    uint8 MessageType = 0;
-
-    if (p != NULL)
-    {
-        uint8 rxBuf[p->len];
-        memcpy(rxBuf, p->payload, p->len);
-        ServiceID = (rxBuf[0] << 8) + rxBuf[1];
-        MethodID = (rxBuf[2] << 8) + rxBuf[3];
-
-        if (ServiceID != 0x0100U)
-        {
-            my_printf("Requested Unknown Service ID\n");
-        }
-        else
-        {
-            /* Message Type: Request */
-            MessageType = rxBuf[14];
-            if (MessageType == 0x00)
-            {
-                /* Check Service ID & Method ID */
-                if (ServiceID == 0x0100U)
-                {
-                    if (MethodID == 0x0101U || MethodID == 0x0102U)
-                    {
-                        uint8 txBuf[256];  // 충분한 크기의 전송 버퍼
-                        uint16 txLen = 0;
-
-                        // SOME/IP 헤더 복사 (16 bytes)
-                        memcpy(txBuf, rxBuf, 16);
-
-                        // Message Type을 Response로 변경
-                        txBuf[14] = 0x80;
-
-                        if (MethodID == 0x0101U)
-                        {
-                            // Payload에 ToF 데이터 추가
-                            txLen = 16;  // SOME/IP 헤더 크기
-
-                            // ToF 센서 데이터 가져오기
-                            ToF_GetLatestData(&tof_latest_data);
-                            my_printf("ToF: dist=%f, t=%llu\n", tof_latest_data.distance_m,
-                                    tof_latest_data.received_time_us);
-
-                            // ToF 데이터 구조체를 바이트 배열로 복사
-                            txLen = Serialize_ToFData(txBuf, txLen, &tof_latest_data);
-                        }
-                        else if (MethodID == 0x0102U)
-                        {
-                            // Payload에 초음파 센서 데이터 추가
-                            txLen = 16;  // SOME/IP 헤더 크기
-
-                            // 초음파 센서 개수 추가
-                            txBuf[txLen++] = ULTRASONIC_COUNT;
-
-                            for (int i = 0; i < ULTRASONIC_COUNT; i++)
-                            {
-                                // 초음파 센서 데이터 가져오기
-                                Ultrasonic_GetLatestData(i, &ult_latest_data[i]);
-                                my_printf("Ult%d: dist_raw=%d, t=%llu\n", i, ult_latest_data[i].dist_raw_mm,
-                                        ult_latest_data[i].received_time_us);
-                                // 초음파 센서 데이터를 바이트 배열로 복사
-                                txLen = Serialize_UltrasonicData(txBuf, txLen, &ult_latest_data[i]);
-                            }
-                        }
-
-                        // SOME/IP Length 필드 업데이트 (Byte 4-7)
-                        // Length = Payload 크기 + 8 (Message ID부터 Payload까지)
-                        uint32 length = txLen - 8;
-                        txBuf[4] = (length >> 24) & 0xFF;
-                        txBuf[5] = (length >> 16) & 0xFF;
-                        txBuf[6] = (length >> 8) & 0xFF;
-                        txBuf[7] = length & 0xFF;
-
-                        /* Send Response Message */
-                        err_t err;
-                        struct pbuf *txbuf = pbuf_alloc(PBUF_TRANSPORT, txLen, PBUF_RAM);
-                        if (txbuf != NULL)
-                        {
-                            pbuf_take(txbuf, txBuf, txLen);
-
-                            ip_addr_t destination_ip;
-                            unsigned char a = (unsigned char) (addr->addr);
-                            unsigned char b = (unsigned char) (addr->addr >> 8);
-                            unsigned char c = (unsigned char) (addr->addr >> 16);
-                            unsigned char d = (unsigned char) (addr->addr >> 24);
-
-                            IP4_ADDR(&destination_ip, a, b, c, d);
-                            u16_t destination_port = port;  // 요청자의 포트로 전송
-
-                            err = udp_sendto(upcb, txbuf, &destination_ip, destination_port);
-                            if (err == ERR_OK)
-                            {
-                                my_printf("Send SOME/IP Service Response with sensor data!! (MethodID: %x)\n",
-                                        MethodID);
-                            }
-                            else
-                            {
-                                my_printf("Send SOME/IP Service Response Failed!! \n");
-                            }
-
-                            pbuf_free(txbuf);
-                        }
-                        else
-                        {
-                            my_printf("Failed to allocate memory for UDP packet buffer.\n");
-                        }
-                    }
-                }
-            }
-        }
-        pbuf_free(p);
-    }
+    return true;
 }
 
-void SOMEIP_Service2_Callback (void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_t *addr, uint16 port)
-{
-    static MotorControllerData_t motor_controller_latest_data;
-    static EmerAlertData_t emerAlert_latest_data;
-
-    uint16 ServiceID = 0;
-    uint16 MethodID = 0;
-    uint8 MessageType = 0;
-
-    if (p != NULL)
-    {
-        uint8 rxBuf[p->len];
-        memcpy(rxBuf, p->payload, p->len);
-        ServiceID = (rxBuf[0] << 8) + rxBuf[1];
-        MethodID = (rxBuf[2] << 8) + rxBuf[3];
-
-        if (ServiceID != 0x0200U)
-        {
-            my_printf("Requested Unknown Service ID\n");
-        }
-        else
-        {
-            /* Message Type: Request */
-            MessageType = rxBuf[14];
-            if (MessageType == 0x00)
-            {
-                /* Check Service ID & Method ID */
-                if (ServiceID == 0x0200U)
-                {
-                    if (MethodID == 0x0201U || MethodID == 0x0202U)
-                    {
-                        uint8 txBuf[256];  // 충분한 크기의 전송 버퍼
-                        uint16 txLen = 0;
-
-                        // SOME/IP 헤더 복사 (16 bytes)
-                        memcpy(txBuf, rxBuf, 16);
-
-                        // Message Type을 Response로 변경
-                        txBuf[14] = 0x80;
-
-                        if (MethodID == 0x0201U)
-                        {
-                            // Motor Control
-                            // Payload에서 motor_x, motor_y 값 추출
-                            int motor_x, motor_y;
-
-                            // motor_x 추출 (4 bytes, signed int)
-                            motor_x = (rxBuf[16] << 24) | (rxBuf[17] << 16) | (rxBuf[18] << 8) | rxBuf[19];
-
-                            // motor_y 추출 (4 bytes, signed int)
-                            motor_y = (rxBuf[20] << 24) | (rxBuf[21] << 16) | (rxBuf[22] << 8) | rxBuf[23];
-
-                            // 모터 제어 수행
-                            if (MotorController_ProcessJoystickInput(motor_x, motor_y))
-                            {
-                                // 모터 컨트롤러 최신 데이터 가져오기
-                                MotorController_GetLatestData(&motor_controller_latest_data);
-                            }
-                            my_printf("Motor Control: chA=%d, chB=%d, t=%llu\n",
-                                    motor_controller_latest_data.motorChA_speed,
-                                    motor_controller_latest_data.motorChB_speed,
-                                    motor_controller_latest_data.output_time_us);
-
-                            // Response payload 구성
-                            txLen = 16;  // SOME/IP 헤더 크기
-
-                            // 모터 컨트롤러 데이터 추가
-                            txLen = Serialize_MotorControllerData(txBuf, txLen, &motor_controller_latest_data);
-                        }
-                        else if (MethodID == 0x0202U)
-                        {
-                            // Emergency Alert Control
-                            // Payload에서 emerAlert_cycle_ms 값 추출
-                            int64_t emerAlert_cycle_ms;
-
-                            // emerAlert_cycle_ms 추출 (8 bytes, signed int64)
-                            emerAlert_cycle_ms = ((int64_t) rxBuf[16] << 56) | ((int64_t) rxBuf[17] << 48)
-                                    | ((int64_t) rxBuf[18] << 40) | ((int64_t) rxBuf[19] << 32)
-                                    | ((int64_t) rxBuf[20] << 24) | ((int64_t) rxBuf[21] << 16)
-                                    | ((int64_t) rxBuf[22] << 8) | (int64_t) rxBuf[23];
-
-                            // Emergency Alert 업데이트 수행
-                            if (EmerAlert_Set_Interval(emerAlert_cycle_ms))
-                            {
-                                // Emergency Alert 최신 데이터 가져오기
-                                EmerAlert_GetLatestData(&emerAlert_latest_data);
-                            }
-                            my_printf("Emergency Alert Control: cycle=%lld ms t=%llu\n",
-                                    emerAlert_latest_data.interval_ms, emerAlert_latest_data.output_time_us);
-
-                            // Response payload 구성
-                            txLen = 16;  // SOME/IP 헤더 크기
-
-                            // Emergency Alert 데이터 추가
-                            txLen = Serialize_EmerAlertData(txBuf, txLen, &emerAlert_latest_data);
-                        }
-
-                        // SOME/IP Length 필드 업데이트 (Byte 4-7)
-                        // Length = Payload 크기 + 8 (Message ID부터 Payload까지)
-                        uint32 length = txLen - 8;
-                        txBuf[4] = (length >> 24) & 0xFF;
-                        txBuf[5] = (length >> 16) & 0xFF;
-                        txBuf[6] = (length >> 8) & 0xFF;
-                        txBuf[7] = length & 0xFF;
-
-                        /* Send Response Message */
-                        err_t err;
-                        struct pbuf *txbuf = pbuf_alloc(PBUF_TRANSPORT, txLen, PBUF_RAM);
-                        if (txbuf != NULL)
-                        {
-                            pbuf_take(txbuf, txBuf, txLen);
-
-                            ip_addr_t destination_ip;
-                            unsigned char a = (unsigned char) (addr->addr);
-                            unsigned char b = (unsigned char) (addr->addr >> 8);
-                            unsigned char c = (unsigned char) (addr->addr >> 16);
-                            unsigned char d = (unsigned char) (addr->addr >> 24);
-
-                            IP4_ADDR(&destination_ip, a, b, c, d);
-                            u16_t destination_port = port;  // 요청자의 포트로 전송
-
-                            err = udp_sendto(upcb, txbuf, &destination_ip, destination_port);
-                            if (err == ERR_OK)
-                            {
-                                my_printf("Send SOME/IP Service2 Response!! (MethodID: %x)\n", MethodID);
-                            }
-                            else
-                            {
-                                my_printf("Send SOME/IP Service2 Response Failed!! \n");
-                            }
-
-                            pbuf_free(txbuf);
-                        }
-                        else
-                        {
-                            my_printf("Failed to allocate memory for UDP packet buffer.\n");
-                        }
-                    }
-                }
-            }
-        }
-        pbuf_free(p);
-    }
-}
-
-bool SOMEIP_UPCB_Init (struct udp_pcb *g_SOMEIP_SERVICE_PCB, uint16 port, udp_recv_fn recv)
+static bool SOMEIP_UPCB_Init (struct udp_pcb *g_SOMEIP_SERVICE_PCB, uint16_t port, udp_recv_fn recv)
 {
     g_SOMEIP_SERVICE_PCB = udp_new();
     if (g_SOMEIP_SERVICE_PCB)
@@ -322,14 +76,338 @@ bool SOMEIP_UPCB_Init (struct udp_pcb *g_SOMEIP_SERVICE_PCB, uint16 port, udp_re
     return true;
 }
 
-bool SOMEIP_Init (void)
+void SOMEIP_Service1_Callback (void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_t *addr, uint16_t port)
 {
-    if (!SOMEIP_UPCB_Init(g_SOMEIP_SERVICE1_PCB, PN_SERVICE_1, (void*) SOMEIP_Service1_Callback))
-        return false;
-    if (!SOMEIP_UPCB_Init(g_SOMEIP_SERVICE2_PCB, PN_SERVICE_2, (void*) SOMEIP_Service2_Callback))
-        return false;
+    static PRData_t pr_latest_data;
+    static ToFData_t tof_latest_data;
+    static UltrasonicData_t ult_latest_data[ULTRASONIC_COUNT];
 
-    return true;
+    if (p == NULL)
+    {
+        return;
+    }
+
+    // 수신 버퍼 크기 검증 (SOME/IP 최소 헤더: 16 bytes)
+    if (p->len < 16 || p->len > 512)
+    {
+        my_printf("Invalid packet size: %d\n", p->len);
+        pbuf_free(p);
+        return;
+    }
+
+    uint8_t rxBuf[512];
+    memcpy(rxBuf, p->payload, p->len);
+
+    uint16_t ServiceID = (rxBuf[0] << 8) + rxBuf[1];
+    uint16_t MethodID = (rxBuf[2] << 8) + rxBuf[3];
+    uint8_t MessageType = rxBuf[14];
+
+    // Service ID 및 Message Type 확인
+    if (ServiceID == 0x0100U && MessageType == 0x00)
+    {
+        uint8_t txBuf[256];
+        uint16_t txLen = 0;
+
+        // SOME/IP 헤더 복사 (16 bytes)
+        memcpy(txBuf, rxBuf, 16);
+        // Message Type을 Response로 변경
+        txBuf[14] = 0x80;
+
+        // Method ID에 따라 처리
+        if (MethodID == 0x0101U)
+        {
+            txLen = 16;
+            pr_latest_data = PR_GetData();
+            my_printf("PR: val=%lu, t=%llu\n", pr_latest_data.val, pr_latest_data.received_time_us);
+            txLen = Serialize_PRData(txBuf, txLen, &pr_latest_data);
+        }
+        else if (MethodID == 0x0102U)
+        {
+            txLen = 16;
+            ToF_GetLatestData(&tof_latest_data);
+            my_printf("ToF: dist=%f, t=%llu\n", tof_latest_data.distance_m, tof_latest_data.received_time_us);
+            txLen = Serialize_ToFData(txBuf, txLen, &tof_latest_data);
+        }
+        else if (MethodID == 0x0103U)
+        {
+            txLen = 16;
+            txBuf[txLen++] = ULTRASONIC_COUNT;
+
+            for (int i = 0; i < ULTRASONIC_COUNT; i++)
+            {
+                Ultrasonic_GetLatestData(i, &ult_latest_data[i]);
+                my_printf("Ult%d: dist_raw=%d, dist_filt=%d, t=%llu\n", i, ult_latest_data[i].dist_raw_mm,
+                        ult_latest_data[i].dist_filt_mm, ult_latest_data[i].received_time_us);
+                txLen = Serialize_UltrasonicData(txBuf, txLen, &ult_latest_data[i]);
+            }
+        }
+
+        if (txLen > 0)
+        {
+            // SOME/IP Length 필드 업데이트
+            SOMEIP_Update_Length(txBuf, txLen);
+
+            // 응답 전송
+            SOMEIP_Send_Response(upcb, txBuf, txLen, addr, port);
+        }
+    }
+    else if (ServiceID != 0x0100U)
+    {
+        my_printf("Requested Unknown Service ID\n");
+    }
+
+    pbuf_free(p);
+}
+
+void SOMEIP_Service2_Callback (void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_t *addr, uint16_t port)
+{
+    static BuzzerData_t buzzer_latest_data;
+    static LedData_t led_latest_data;
+
+    if (p == NULL)
+    {
+        return;
+    }
+
+    // 수신 버퍼 크기 검증 (SOME/IP 최소 헤더: 16 bytes)
+    if (p->len < 16 || p->len > 512)
+    {
+        my_printf("Invalid packet size: %d\n", p->len);
+        pbuf_free(p);
+        return;
+    }
+
+    uint8_t rxBuf[512];
+    memcpy(rxBuf, p->payload, p->len);
+
+    uint16_t ServiceID = (rxBuf[0] << 8) + rxBuf[1];
+    uint16_t MethodID = (rxBuf[2] << 8) + rxBuf[3];
+    uint8_t MessageType = rxBuf[14];
+
+    // Service ID 및 Message Type 확인
+    if (ServiceID == 0x0200U && MessageType == 0x00)
+    {
+        uint8_t txBuf[256];
+        uint16_t txLen = 0;
+
+        // SOME/IP 헤더 복사 (16 bytes)
+        memcpy(txBuf, rxBuf, 16);
+        // Message Type을 Response로 변경
+        txBuf[14] = 0x80;
+
+        // Method ID에 따라 처리
+        if (MethodID == 0x0201U)
+        {
+            // Buzzer Control - Payload에서 값 추출
+            uint8_t buzzer_command = rxBuf[16];  // 0: Off, 1: On
+            int32_t frequency = (rxBuf[17] << 24) | (rxBuf[18] << 16) | (rxBuf[19] << 8) | rxBuf[20];
+
+            // 부저 제어 수행
+            if (buzzer_command == 0x00)
+            {
+                Buzzer_Off();
+            }
+            else if (buzzer_command == 0x01)
+            {
+                if (Buzzer_SetFrequency(frequency))
+                {
+                    Buzzer_On();
+                }
+            }
+
+            buzzer_latest_data = Buzzer_GetData();
+            my_printf("Buzzer Control: isOn=%d, frequency=%d\n", buzzer_latest_data.isOn, buzzer_latest_data.frequency);
+
+            // Response payload 구성
+            txLen = 16;
+            txLen = Serialize_BuzzerData(txBuf, txLen, &buzzer_latest_data);
+        }
+        else if (MethodID == 0x0202U)
+        {
+            // LED Control - Payload에서 led_side 및 led_command 값 추출
+            uint8_t led_side = rxBuf[16];       // LED_BACK, LED_FRONT_DOWN, LED_FRONT_UP
+            uint8_t led_command = rxBuf[17];    // 0: Off, 1: On, 2: Toggle
+
+            LedSide side = (LedSide) led_side;
+
+            // LED 제어 수행
+            if (led_command == 0x00)
+            {
+                LED_Off(side);
+            }
+            else if (led_command == 0x01)
+            {
+                LED_On(side);
+            }
+            else if (led_command == 0x02)
+            {
+                LED_Toggle(side);
+            }
+
+            led_latest_data = LED_GetData(side);
+            my_printf("LED Control: side=%d, isOn=%d\n", led_latest_data.side, led_latest_data.isOn);
+
+            // Response payload 구성
+            txLen = 16;
+            txLen = Serialize_LedData(txBuf, txLen, &led_latest_data);
+        }
+
+        if (txLen > 0)
+        {
+            // SOME/IP Length 필드 업데이트
+            SOMEIP_Update_Length(txBuf, txLen);
+
+            // 응답 전송
+            SOMEIP_Send_Response(upcb, txBuf, txLen, addr, port);
+        }
+    }
+    else if (ServiceID != 0x0200U)
+    {
+        my_printf("Requested Unknown Service ID\n");
+    }
+
+    pbuf_free(p);
+}
+
+void SOMEIP_Service3_Callback (void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_t *addr, uint16_t port)
+{
+    static EmerAlertData_t emerAlert_latest_data;
+    static MotorControllerData_t motor_controller_latest_data;
+
+    if (p == NULL)
+    {
+        return;
+    }
+
+    // 수신 버퍼 크기 검증 (SOME/IP 최소 헤더: 16 bytes)
+    if (p->len < 16 || p->len > 512)
+    {
+        my_printf("Invalid packet size: %d\n", p->len);
+        pbuf_free(p);
+        return;
+    }
+
+    uint8_t rxBuf[512];
+    memcpy(rxBuf, p->payload, p->len);
+
+    uint16_t ServiceID = (rxBuf[0] << 8) + rxBuf[1];
+    uint16_t MethodID = (rxBuf[2] << 8) + rxBuf[3];
+    uint8_t MessageType = rxBuf[14];
+
+    // Service ID 및 Message Type 확인
+    if (ServiceID == 0x0300U && MessageType == 0x00)
+    {
+        uint8_t txBuf[256];
+        uint16_t txLen = 0;
+
+        // SOME/IP 헤더 복사 (16 bytes)
+        memcpy(txBuf, rxBuf, 16);
+        // Message Type을 Response로 변경
+        txBuf[14] = 0x80;
+
+        // Method ID에 따라 처리
+        if (MethodID == 0x0301U)
+        {
+            // Emergency Alert Control - Payload에서 emerAlert_cycle_ms 값 추출
+            int64_t emerAlert_cycle_ms = ((int64_t) rxBuf[16] << 56) | ((int64_t) rxBuf[17] << 48)
+                    | ((int64_t) rxBuf[18] << 40) | ((int64_t) rxBuf[19] << 32) | ((int64_t) rxBuf[20] << 24)
+                    | ((int64_t) rxBuf[21] << 16) | ((int64_t) rxBuf[22] << 8) | (int64_t) rxBuf[23];
+
+            // Emergency Alert 업데이트 수행
+            if (EmerAlert_Set_Interval(emerAlert_cycle_ms))
+            {
+                emerAlert_latest_data = EmerAlert_GetData();
+            }
+            my_printf("Emergency Alert Control: cycle=%lld ms\n", emerAlert_latest_data.interval_ms);
+
+            // Response payload 구성
+            txLen = 16;
+            txLen = Serialize_EmerAlertData(txBuf, txLen, &emerAlert_latest_data);
+        }
+        else if (MethodID == 0x0302U)
+        {
+            // Motor Control - Payload에서 motor_x, motor_y 값 추출
+            int motor_x = (rxBuf[16] << 24) | (rxBuf[17] << 16) | (rxBuf[18] << 8) | rxBuf[19];
+            int motor_y = (rxBuf[20] << 24) | (rxBuf[21] << 16) | (rxBuf[22] << 8) | rxBuf[23];
+
+            // 모터 제어 수행
+            if (MotorController_ProcessJoystickInput(motor_x, motor_y))
+            {
+                motor_controller_latest_data = MotorController_GetData();
+            }
+            my_printf("Motor Control: chA=%d, chB=%d\n", motor_controller_latest_data.motorChA_speed,
+                    motor_controller_latest_data.motorChB_speed);
+
+            // Response payload 구성
+            txLen = 16;
+            txLen = Serialize_MotorControllerData(txBuf, txLen, &motor_controller_latest_data);
+        }
+
+        if (txLen > 0)
+        {
+            // SOME/IP Length 필드 업데이트
+            SOMEIP_Update_Length(txBuf, txLen);
+
+            // 응답 전송
+            SOMEIP_Send_Response(upcb, txBuf, txLen, addr, port);
+        }
+    }
+    else if (ServiceID != 0x0300U)
+    {
+        my_printf("Requested Unknown Service ID\n");
+    }
+
+    pbuf_free(p);
+}
+
+static inline void SOMEIP_Update_Length (uint8_t *txBuf, uint16_t txLen)
+{
+    // SOME/IP Length 필드 업데이트 (Byte 4-7)
+    // Length = Payload 크기 + 8 (Message ID부터 Payload까지)
+    uint32_t length = txLen - 8;
+    txBuf[4] = (length >> 24) & 0xFF;
+    txBuf[5] = (length >> 16) & 0xFF;
+    txBuf[6] = (length >> 8) & 0xFF;
+    txBuf[7] = length & 0xFF;
+}
+
+static void SOMEIP_Send_Response (struct udp_pcb *upcb, uint8_t *txBuf, uint16_t txLen, const ip_addr_t *addr,
+        uint16_t port)
+{
+    err_t err;
+    struct pbuf *txbuf = pbuf_alloc(PBUF_TRANSPORT, txLen, PBUF_RAM);
+
+    if (txbuf == NULL)
+    {
+        my_printf("Failed to allocate memory for UDP packet buffer.\n");
+        return;
+    }
+
+    pbuf_take(txbuf, txBuf, txLen);
+
+    // 요청자의 IP 주소 재구성
+    ip_addr_t destination_ip;
+    unsigned char a = (unsigned char) (addr->addr);
+    unsigned char b = (unsigned char) (addr->addr >> 8);
+    unsigned char c = (unsigned char) (addr->addr >> 16);
+    unsigned char d = (unsigned char) (addr->addr >> 24);
+
+    IP4_ADDR(&destination_ip, a, b, c, d);
+    u16_t destination_port = port;
+
+    // 응답 전송
+    err = udp_sendto(upcb, txbuf, &destination_ip, destination_port);
+
+    if (err == ERR_OK)
+    {
+        my_printf("Send SOME/IP Service Response with sensor data!!\n");
+    }
+    else
+    {
+        my_printf("Send SOME/IP Service Response Failed!! \n");
+    }
+
+    pbuf_free(txbuf);
 }
 
 #endif /* LWIP_UDP */

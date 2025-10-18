@@ -1,71 +1,46 @@
 #include "motor_controller.h"
 
-#include "stm.h"
-
 #include "motor.h"
 
 #include "my_math.h"
 
 // 상수 정의
 #define MOTOR_SPEED_MAX     100
-#define MOTOR_SPEED_MIN     -MOTOR_SPEED_MAX
+#define MOTOR_SPEED_MIN     -100
 #define MOTOR_SPEED_CENTER  0
 #define JOYSTICK_MAX        99
 #define JOYSTICK_MIN        0
 #define JOYSTICK_CENTER     50
 #define JOYSTICK_DEADZONE   8
 
-// 모터 채널 정의
-typedef enum
-{
-    MotorChannel_ChA = 0, MotorChannel_ChB = 1
-} MotorChannel_t;
-
 // 내부 상태
 static MotorControllerData_t latest_data;
-static bool data_ready = false;
 
-// 출력 데이터 가져오기
-bool MotorController_GetLatestData (MotorControllerData_t *out)
+// 데이터 가져오기
+MotorControllerData_t MotorController_GetData (void)
 {
-    if (!data_ready)
-        return false;
-
-    *out = latest_data;
-    data_ready = false;
-    return true;
+    return latest_data;
 }
 
 // 좌/우 모터 속도 설정
 static void MotorController_SetSpeed (int left_speed, int right_speed)
 {
+    latest_data.motorChA_speed = right_speed;
+    latest_data.motorChB_speed = left_speed;
+
     bool left_direction = (left_speed >= 0) ? 1 : 0;
     left_speed = my_abs(left_speed);
-    if (left_speed > MOTOR_SPEED_MAX)
-    {
-        left_speed = MOTOR_SPEED_MAX;
-    }
 
     bool right_direction = (right_speed >= 0) ? 1 : 0;
     right_speed = my_abs(right_speed);
-    if (right_speed > MOTOR_SPEED_MAX)
-    {
-        right_speed = MOTOR_SPEED_MAX;
-    }
 
     Motor_SetChA(right_speed, right_direction);
     Motor_SetChB(left_speed, left_direction);
-
-    latest_data.output_time_us = STM0_getTimeUs();
-    latest_data.motorChA_speed = right_speed;
-    latest_data.motorChB_speed = left_speed;
-    data_ready = true;
 }
 
 // 조이스틱 값 매핑 (데드존 포함)
 static int MotorController_MapJoystickValue (int value, int deadzone)
 {
-    value = my_clamp(value, JOYSTICK_MIN, JOYSTICK_MAX);
     int offset = value - JOYSTICK_CENTER;
 
     if (my_abs(offset) < deadzone)
@@ -99,8 +74,8 @@ bool MotorController_ProcessJoystickInput (int x, int y)
 
     x_speed = (x_speed * 60) / 100; // X축 영향 축소 (-60 ~ +60)
 
-    int left_speed = y_speed + x_speed;
-    int right_speed = y_speed - x_speed;
+    int left_speed = my_clamp(y_speed + x_speed, MOTOR_SPEED_MIN, MOTOR_SPEED_MAX);
+    int right_speed = my_clamp(y_speed - x_speed, MOTOR_SPEED_MIN, MOTOR_SPEED_MAX);
 
     MotorController_SetSpeed(left_speed, right_speed);
     return true;

@@ -2,11 +2,15 @@
 #define BSW_CONTROLLER_EMER_ALERT_H_
 
 #include <stdbool.h>
+#include <stdint.h>
 
-#include "emer_alert_types.h"
+typedef struct
+{
+    int64_t interval_ms;
+} EmerAlertData_t;
 
-void EmerAlert_Update_Periodic (void);
+EmerAlertData_t EmerAlert_GetData (void);
 bool EmerAlert_Set_Interval (int64_t toggle_interval_ms);
-bool EmerAlert_GetLatestData (EmerAlertData_t *out);
+void EmerAlert_Update_Periodic (void);
 
 #endif /* BSW_CONTROLLER_EMER_ALERT_H_ */

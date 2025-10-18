@@ -2,14 +2,11 @@
 
 #include "stm.h"
 
-#include "buzzer.h"
-#include "led.h"
+#include "Buzzer.h"
+#include "LED.h"
 
 static bool isAlertOn = false;
 static int64_t g_toggle_interval_ms = -1;
-
-static EmerAlertData_t latest_data;
-static bool data_ready = false;
 
 static void EmerAlert_On (void)
 {
@@ -75,26 +72,17 @@ void EmerAlert_Update_Periodic (void)
     }
 }
 
+EmerAlertData_t EmerAlert_GetData (void)
+{
+    EmerAlertData_t ret = {g_toggle_interval_ms};
+    return ret;
+}
+
 bool EmerAlert_Set_Interval (int64_t toggle_interval_ms)
 {
     if (toggle_interval_ms == g_toggle_interval_ms)
         return false;
 
     g_toggle_interval_ms = toggle_interval_ms;
-
-    latest_data.output_time_us = STM0_getTimeUs();
-    latest_data.interval_ms = toggle_interval_ms;
-    data_ready = true;
-
-    return true;
-}
-
-bool EmerAlert_GetLatestData (EmerAlertData_t *out)
-{
-    if (!data_ready)
-        return false;
-
-    *out = latest_data;
-    data_ready = false;
     return true;
 }

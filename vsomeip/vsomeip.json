@@ -14,10 +14,8 @@
     "routing": "rpi_client_app",
     "service-discovery": {
         "enable": "true",
-	"multicast": "224.224.224.245",
-	"port" : "30490",
-	"protocol": "udp"
-
+        "multicast": "224.224.224.245",
+        "port" : "30490",
+        "protocol": "udp"
     }
 }
-

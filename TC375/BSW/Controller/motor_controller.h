@@ -2,10 +2,15 @@
 #define BSW_CONTROLLER_MOTOR_CONTROLLER_H_
 
 #include <stdbool.h>
+#include <stdint.h>
 
-#include "motor_controller_types.h"
+typedef struct
+{
+    int32_t motorChA_speed;
+    int32_t motorChB_speed;
+} MotorControllerData_t;
 
-bool MotorController_GetLatestData (MotorControllerData_t *out);
+MotorControllerData_t MotorController_GetData (void);
 bool MotorController_ProcessJoystickInput (int x, int y);
 bool MotorController_ProcessWASDInput (char key);
 

@@ -3,8 +3,24 @@
 #include <string.h>
 #include <lwip/inet.h>
 
-/* ToF 데이터를 txBuf에 직렬화 */
-/* 반환값: 최종 버퍼 길이 (txLen) */
+uint16_t Serialize_PRData (uint8_t *txBuf, uint16_t txLen, const PRData_t *data)
+{
+    // 1) val (uint32_t → big-endian)
+    uint32_t val = htonl(data->val);
+    memcpy(&txBuf[txLen], &val, 4);
+    txLen += 4;
+
+    // 2) received_time_us (uint64_t → 상/하위 32비트 나눠서 big-endian)
+    uint64_t time_val = data->received_time_us;
+    uint32_t high = htonl((uint32_t ) (time_val >> 32));
+    uint32_t low = htonl((uint32_t ) (time_val & 0xFFFFFFFF));
+    memcpy(&txBuf[txLen], &high, 4);
+    memcpy(&txBuf[txLen + 4], &low, 4);
+    txLen += 8;
+
+    return txLen;
+}
+
 uint16_t Serialize_ToFData (uint8_t *txBuf, uint16_t txLen, const ToFData_t *data)
 {
     // 1) id
@@ -64,25 +80,26 @@ uint16_t Serialize_UltrasonicData (uint8_t *txBuf, uint16_t txLen, const Ultraso
     return txLen;
 }
 
-uint16_t Serialize_MotorControllerData (uint8_t *txBuf, uint16_t txLen, const MotorControllerData_t *data)
+uint16_t Serialize_BuzzerData (uint8_t *txBuf, uint16_t txLen, const BuzzerData_t *data)
 {
-    // 1) motorChA_speed (int32_t → Big Endian)
-    int32_t a = htonl(data->motorChA_speed);
-    memcpy(&txBuf[txLen], &a, 4);
+    // 1) isOn (bool → 1 byte)
+    txBuf[txLen++] = data->isOn ? 0x01 : 0x00;
+
+    // 2) frequency (int32_t → big-endian)
+    int32_t freq = htonl(data->frequency);
+    memcpy(&txBuf[txLen], &freq, 4);
     txLen += 4;
 
-    // 2) motorChB_speed (int32_t → Big Endian)
-    int32_t b = htonl(data->motorChB_speed);
-    memcpy(&txBuf[txLen], &b, 4);
-    txLen += 4;
+    return txLen;
+}
 
-    // 3) output_time_us (uint64_t → 상/하위 32비트로 나눠서 Big Endian)
-    uint64_t val = data->output_time_us;
-    uint32_t high = htonl((uint32_t )(val >> 32));
-    uint32_t low = htonl((uint32_t )(val & 0xFFFFFFFF));
-    memcpy(&txBuf[txLen], &high, 4);
-    memcpy(&txBuf[txLen + 4], &low, 4);
-    txLen += 8;
+uint16_t Serialize_LedData (uint8_t *txBuf, uint16_t txLen, const LedData_t *data)
+{
+    // 1) side (LedSide → 1 byte)
+    txBuf[txLen++] = (uint8_t) data->side;
+
+    // 2) isOn (bool → 1 byte)
+    txBuf[txLen++] = data->isOn ? 0x01 : 0x00;
 
     return txLen;
 }
@@ -97,13 +114,20 @@ uint16_t Serialize_EmerAlertData (uint8_t *txBuf, uint16_t txLen, const EmerAler
     memcpy(&txBuf[txLen + 4], &interval_low, 4);
     txLen += 8;
 
-    // 2) output_time_us (uint64_t → Big Endian)
-    uint64_t time = data->output_time_us;
-    uint32_t time_high = htonl((uint32_t )(time >> 32));
-    uint32_t time_low = htonl((uint32_t )(time & 0xFFFFFFFF));
-    memcpy(&txBuf[txLen], &time_high, 4);
-    memcpy(&txBuf[txLen + 4], &time_low, 4);
-    txLen += 8;
+    return txLen;
+}
+
+uint16_t Serialize_MotorControllerData (uint8_t *txBuf, uint16_t txLen, const MotorControllerData_t *data)
+{
+    // 1) motorChA_speed (int32_t → Big Endian)
+    int32_t a = htonl(data->motorChA_speed);
+    memcpy(&txBuf[txLen], &a, 4);
+    txLen += 4;
+
+    // 2) motorChB_speed (int32_t → Big Endian)
+    int32_t b = htonl(data->motorChB_speed);
+    memcpy(&txBuf[txLen], &b, 4);
+    txLen += 4;
 
     return txLen;
 }

@@ -13,7 +13,7 @@
 
 struct udp_pcb *g_SOMEIPSD_PCB;
 
-void SOMEIPSD_Recv_Callback (void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_t *addr, uint16 port);
+void SOMEIPSD_Recv_Callback (void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_t *addr, uint16_t port);
 
 bool SOMEIPSD_Init (void)
 {
@@ -50,16 +50,16 @@ bool SOMEIPSD_Init (void)
 void SOMEIPSD_SendOfferService (unsigned char ip_a, unsigned char ip_b, unsigned char ip_c, unsigned char ip_d)
 {
     err_t err;
-    uint8 MSG_OfferService[] = {
+    uint8_t MSG_OfferService[] = {
             /* SOME/IP Header */
             0xFF, 0xFF, 0x81, 0x00,
-            0x00, 0x00, 0x00, 0x4C,
+            0x00, 0x00, 0x00, 0x68,
             0x00, 0x00, 0x00, 0x00,
             0x01, 0x01, 0x02, 0x00,
             /* SD HEADER */
             0x00, 0x00, 0x00, 0x00,
             /* ENTRIES ARRAY LENGTH */
-            0x00, 0x00, 0x00, 0x20,
+            0x00, 0x00, 0x00, 0x30,
             /* Entry 1 */
             0x01, 0x00, 0x00, 0x10,
             0x01, 0x00, 0x00, 0x01,
@@ -70,19 +70,28 @@ void SOMEIPSD_SendOfferService (unsigned char ip_a, unsigned char ip_b, unsigned
             0x02, 0x00, 0x00, 0x01,
             0x01, 0x00, 0x00, 0x0A,
             0x00, 0x00, 0x00, 0x01,
+            /* Entry 3 */
+            0x01, 0x02, 0x00, 0x10,
+            0x03, 0x00, 0x00, 0x01,
+            0x01, 0x00, 0x00, 0x0A,
+            0x00, 0x00, 0x00, 0x01,
             /* OPTIONS ARRAY LENGTH */
-            0x00, 0x00, 0x00, 0x18,
+            0x00, 0x00, 0x00, 0x24,
             /* Option 1 */
             0x00, 0x09, 0x04, 0x80,
             0xC0, 0xA8, 0x02, 0x14,
-            0x00, 0x11, 0x77, 0x2E,
+            0x00, 0x11, 0x77, 0x2F,
             /* Option 2 */
             0x00, 0x09, 0x04, 0x80,
             0xC0, 0xA8, 0x02, 0x14,
-            0x00, 0x11, 0x77, 0x2F
+            0x00, 0x11, 0x77, 0x30,
+            /* Option 3 */
+            0x00, 0x09, 0x04, 0x80,
+            0xC0, 0xA8, 0x02, 0x14,
+            0x00, 0x11, 0x77, 0x31
     };
 
-    uint8 *ip = Ifx_Lwip_getIpAddrPtr();
+    uint8_t *ip = Ifx_Lwip_getIpAddrPtr();
 
 //    MSG_OfferService[64] = ip[0];
 //    MSG_OfferService[65] = ip[1];
@@ -136,7 +145,7 @@ void SOMEIPSD_SendOfferService (unsigned char ip_a, unsigned char ip_b, unsigned
 void SOMEIPSD_SendSubEvtGrpAck (unsigned char ip_a, unsigned char ip_b, unsigned char ip_c, unsigned char ip_d)
 {
     err_t err;
-    uint8 MSG_SubEvtGrpAck[] = {0xFF, 0xFF, 0x81, 0x00, /* SOMEIP Header */
+    uint8_t MSG_SubEvtGrpAck[] = {0xFF, 0xFF, 0x81, 0x00, /* SOMEIP Header */
     0x00, 0x00, 0x00, 0x28, /* SOMEIP Header Length */
     0x00, 0x00, 0x00, 0x01, /* Request ID */
     0x01, 0x01, 0x02, 0x00, /* SOMEIP version information */
@@ -173,16 +182,16 @@ void SOMEIPSD_SendSubEvtGrpAck (unsigned char ip_a, unsigned char ip_b, unsigned
     }
 }
 
-void SOMEIPSD_Recv_Callback (void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_t *addr, uint16 port)
+void SOMEIPSD_Recv_Callback (void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_t *addr, uint16_t port)
 {
-    volatile uint16 ServiceID = 0;
-    volatile uint16 MethodID = 0;
-    volatile uint8 SD_Type = 0;
+    volatile uint16_t ServiceID = 0;
+    volatile uint16_t MethodID = 0;
+    volatile uint8_t SD_Type = 0;
 
     if (p != NULL)
     {
-        ServiceID = *(uint16*) (p->payload);
-        MethodID = (*(((uint8*) p->payload) + 2) << 8) + *(((uint8*) p->payload) + 3);
+        ServiceID = *(uint16_t*) (p->payload);
+        MethodID = (*(((uint8_t*) p->payload) + 2) << 8) + *(((uint8_t*) p->payload) + 3);
 
         unsigned char a = (unsigned char) (addr->addr);
         unsigned char b = (unsigned char) (addr->addr >> 8);
@@ -192,7 +201,7 @@ void SOMEIPSD_Recv_Callback (void *arg, struct udp_pcb *upcb, struct pbuf *p, co
         /* Received SOME/IP-SD */
         if (ServiceID == 0xFFFFU && MethodID == 0x8100U)
         {
-            SD_Type = *(((uint8*) p->payload) + 24);
+            SD_Type = *(((uint8_t*) p->payload) + 24);
             if (SD_Type == 0x00)
             {
                 SOMEIPSD_SendOfferService(a, b, c, d);
