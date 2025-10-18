@@ -2,20 +2,18 @@
 
 #include "stm.h"
 
-#include "buzzer.h"
-#include "led.h"
+#include "Buzzer.h"
+#include "LED.h"
 
 static bool isAlertOn = false;
 static int64_t g_toggle_interval_ms = -1;
-
-static EmerAlertData_t latest_data;
-static bool data_ready = false;
 
 static void EmerAlert_On (void)
 {
     if (!isAlertOn)
     {
-        LED_On();
+        LED_On(LED_BACK);
+        Buzzer_SetFrequency(500);
         Buzzer_On();
         isAlertOn = true;
     }
@@ -25,7 +23,7 @@ static void EmerAlert_Off (void)
 {
     if (isAlertOn)
     {
-        LED_Off();
+        LED_Off(LED_BACK);
         Buzzer_Off();
         isAlertOn = false;
     }
@@ -37,12 +35,13 @@ static void EmerAlert_Toggle (void)
 
     if (isAlertOn)
     {
-        LED_On();
+        LED_On(LED_BACK);
+        Buzzer_SetFrequency(500);
         Buzzer_On();
     }
     else
     {
-        LED_Off();
+        LED_Off(LED_BACK);
         Buzzer_Off();
     }
 }
@@ -53,7 +52,7 @@ void EmerAlert_Update_Periodic (void)
 
     if (g_toggle_interval_ms > 0) // toggle_interval_ms > 0 -> toggle
     {
-        uint64_t cur_time_ms = getTimeMs();
+        uint64_t cur_time_ms = STM0_getTimeMs();
 
         if (cur_time_ms - last_toggle_time_ms >= (uint64_t) g_toggle_interval_ms)
         {
@@ -73,26 +72,17 @@ void EmerAlert_Update_Periodic (void)
     }
 }
 
+EmerAlertData_t EmerAlert_GetData (void)
+{
+    EmerAlertData_t ret = {g_toggle_interval_ms};
+    return ret;
+}
+
 bool EmerAlert_Set_Interval (int64_t toggle_interval_ms)
 {
     if (toggle_interval_ms == g_toggle_interval_ms)
         return false;
 
     g_toggle_interval_ms = toggle_interval_ms;
-
-    latest_data.output_time_us = getTimeUs();
-    latest_data.interval_ms = toggle_interval_ms;
-    data_ready = true;
-
-    return true;
-}
-
-bool EmerAlert_GetLatestData (EmerAlertData_t *out)
-{
-    if (!data_ready)
-        return false;
-
-    *out = latest_data;
-    data_ready = false;
     return true;
 }

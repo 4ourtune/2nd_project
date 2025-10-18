@@ -21,5 +21,6 @@ void GPIO_SetMotorBrake (int channel, bool state);
 /* For ultrasonic */
 void GPIO_InitUltTrig (void);
 void GPIO_SetUltTrig (bool state);
+void GPIO_ToggleUltTrig (void);
 
 #endif /* BSW_DRIVER_GPIO_H_ */

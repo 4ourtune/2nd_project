@@ -7,20 +7,18 @@
 #include "stm.h"
 
 #include "buzzer.h"
-
-static const uint64_t ULTRASONIC_TRIG_HIGH_DURATION = 1000; // 1000us = 1ms
+#include "Ultrasonic.h"
 
 /* fGPT = 100MHz = 10^8Hz = (2^8 * 5^8)Hz */
 static const uint32_t GPT1_BLOCK_PRESCALER = 0x2; // Set GPT1 block prescaler: 2^5 = 32
-static const uint32_t TIMER_T3_INPUT_PRESCALER = 0x3; // Set T3 input prescaler: 2^3 = 8
+static const uint32_t TIMER_T3_INPUT_PRESCALER = 0x1; // Set T3 input prescaler: 2^1 = 2
 static const uint32_t TIMER_T3_T2_VALUE = 15625; // Set timer T3, T2 value: 5^6 = 15625
 
 IFX_INTERRUPT(IsrGpt1T3Handler, 0, ISR_PRIORITY_GPT1T3_TIMER);
-void IsrGpt1T3Handler (void) // (2^0 * 5^2)Hz = 25Hz = 0.04sec = 40ms
+void IsrGpt1T3Handler (void) // (2^2 * 5^2)Hz = 100Hz = 0.01sec = 10ms
 {
-    /* Ultrasonic sensor: Set the period to 40ms. 38ms(Max echo back pulse duration) + 2ms(Margin including trigger pulse) */
-    GPIO_SetUltTrig(true);
-    Stm0_InterruptAfter(ULTRASONIC_TRIG_HIGH_DURATION);
+    /* Ultrasonic sensor: Set the period to 100ms. 38ms(Max echo back pulse duration) + Margin including trigger pulse */
+    Ultrasonic_Trigger(10); // 10ms * 10 = 100ms
 }
 
 void Run_Gpt12_T3 ()

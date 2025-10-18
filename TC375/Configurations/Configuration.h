@@ -58,8 +58,9 @@
 #define PN_DoIP                         13400U                  // Ethernet Port Number: DoIP (13400, fixed value)
 #define PN_SD                           30490U                  // Ethernet Port Number: SOME/IP-SD (Fixed value)
 
-#define PN_SERVICE_1                    30510U                  // Ethernet Port Number: SOME/IP_service (User Definable)
-#define PN_SERVICE_2                    30511U
+#define PN_SERVICE_1                    30511U                  // Ethernet Port Number: SOME/IP_service (User Definable)
+#define PN_SERVICE_2                    30512U
+#define PN_SERVICE_3                    30513U
 
 #define PN_SOMEIPSD                     30490U
 #define ETH_SOMEIP_PROT_VER             0x01                    // Ethernet SOME/IP Protocol Version

@@ -34,14 +34,26 @@ bool Ultrasonic_Init (int buffer_size, int max_events)
     ScuEru_Init2();
     GPIO_InitUltTrig();
     Gpt1_Init();
-    Stm0_Init();
+//    Stm0_Init();
 
     /* Set initial state */
     GPIO_SetUltTrig(false);
-    Stm0_InterruptAfter(0);
+//    Stm0_InterruptAfter(0);
     Run_Gpt12_T3();
 
     return true;
+}
+
+void Ultrasonic_Trigger (int cntMax)
+{
+    static int cntDelay = 0;
+
+    if (cntDelay < 2)
+    {
+        GPIO_ToggleUltTrig();
+    }
+
+    cntDelay = (cntDelay + 1) % cntMax;
 }
 
 void Ultrasonic_EchoHandler (UltrasonicSide side, bool input_pin_state)
@@ -49,7 +61,7 @@ void Ultrasonic_EchoHandler (UltrasonicSide side, bool input_pin_state)
     if (side >= ULTRASONIC_COUNT)
         return;
 
-    uint64_t now = getTimeUs();
+    uint64_t now = STM0_getTimeUs();
     EruEvent evt = {.pin_state = input_pin_state, .timestamp_us = now};
     EruEventQueue_Push(&rx_queues[side], &evt);
 }

@@ -4,9 +4,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-uint64_t getTime10ns (void);
-uint64_t getTimeUs (void);
-uint64_t getTimeMs (void);
+uint64_t STM0_getTime10ns (void);
+uint64_t STM0_getTimeUs (void);
+uint64_t STM0_getTimeMs (void);
 
 void Stm0_Init (void);
 void Stm0_InterruptAfter (uint64_t delay_us);
