@@ -1,5 +1,5 @@
 # apps/ota/config.py
-BROKER_HOST = "192.168.200.2"
+BROKER_HOST = "192.168.137.1"
 BROKER_PORT = 1883
 TOPIC = "ota/vehicle_control/update"
 
