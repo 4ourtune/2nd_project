@@ -22,7 +22,7 @@
 
 #if LWIP_UDP
 
-static bool SOMEIP_UPCB_Init (struct udp_pcb *g_SOMEIP_SERVICE_PCB, uint16_t port, udp_recv_fn recv);
+static bool SOMEIP_UPCB_Init (struct udp_pcb **pcb_ptr, uint16_t port, udp_recv_fn recv);
 void SOMEIP_Service1_Callback (void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_t *addr, uint16_t port);
 void SOMEIP_Service2_Callback (void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_t *addr, uint16_t port);
 void SOMEIP_Service3_Callback (void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_t *addr, uint16_t port);
@@ -36,33 +36,33 @@ struct udp_pcb *g_SOMEIP_SERVICE3_PCB;
 
 bool SOMEIP_Init (void)
 {
-    if (!SOMEIP_UPCB_Init(g_SOMEIP_SERVICE1_PCB, PN_SERVICE_1, (void*) SOMEIP_Service1_Callback))
+    if (!SOMEIP_UPCB_Init(&g_SOMEIP_SERVICE1_PCB, PN_SERVICE_1, (void*) SOMEIP_Service1_Callback))
         return false;
-    if (!SOMEIP_UPCB_Init(g_SOMEIP_SERVICE2_PCB, PN_SERVICE_2, (void*) SOMEIP_Service2_Callback))
+    if (!SOMEIP_UPCB_Init(&g_SOMEIP_SERVICE2_PCB, PN_SERVICE_2, (void*) SOMEIP_Service2_Callback))
         return false;
-    if (!SOMEIP_UPCB_Init(g_SOMEIP_SERVICE3_PCB, PN_SERVICE_3, (void*) SOMEIP_Service3_Callback))
+    if (!SOMEIP_UPCB_Init(&g_SOMEIP_SERVICE3_PCB, PN_SERVICE_3, (void*) SOMEIP_Service3_Callback))
         return false;
 
     return true;
 }
 
-static bool SOMEIP_UPCB_Init (struct udp_pcb *g_SOMEIP_SERVICE_PCB, uint16_t port, udp_recv_fn recv)
+static bool SOMEIP_UPCB_Init (struct udp_pcb **pcb_ptr, uint16_t port, udp_recv_fn recv)
 {
-    g_SOMEIP_SERVICE_PCB = udp_new();
-    if (g_SOMEIP_SERVICE_PCB)
+    struct udp_pcb *SOMEIP_SERVICE_PCB = udp_new();
+    if (SOMEIP_SERVICE_PCB)
     {
         /* bind pcb to the port */
         /* Using IP_ADDR_ANY allow the pcb to be used by any local interface */
-        err_t err = udp_bind(g_SOMEIP_SERVICE_PCB, IP_ADDR_ANY, port);
+        err_t err = udp_bind(SOMEIP_SERVICE_PCB, IP_ADDR_ANY, port);
         if (err == ERR_OK)
         {
             /* Set a receive callback for the pcb */
-            udp_recv(g_SOMEIP_SERVICE_PCB, recv, NULL);
+            udp_recv(SOMEIP_SERVICE_PCB, recv, NULL);
             my_printf("SOME/IP Service PCB Initialized! (Port: %d)\n", port);
         }
         else
         {
-            udp_remove(g_SOMEIP_SERVICE_PCB);
+            udp_remove(SOMEIP_SERVICE_PCB);
             my_printf("SOME/IP Service PCB init failed!\n");
             return false;
         }
@@ -73,6 +73,7 @@ static bool SOMEIP_UPCB_Init (struct udp_pcb *g_SOMEIP_SERVICE_PCB, uint16_t por
         return false;
     }
 
+    *pcb_ptr = SOMEIP_SERVICE_PCB;
     return true;
 }
 
@@ -195,23 +196,28 @@ void SOMEIP_Service2_Callback (void *arg, struct udp_pcb *upcb, struct pbuf *p, 
         // Message Type을 Response로 변경
         txBuf[14] = 0x80;
 
+        bool isEmerAlertOn = EmerAlert_GetData().interval_ms >= 0 ? true : false;
+
         // Method ID에 따라 처리
         if (MethodID == 0x0201U)
         {
-            // Buzzer Control - Payload에서 값 추출
-            uint8_t buzzer_command = rxBuf[16];  // 0: Off, 1: On
-            int32_t frequency = (rxBuf[17] << 24) | (rxBuf[18] << 16) | (rxBuf[19] << 8) | rxBuf[20];
+            if (!isEmerAlertOn)
+            {
+                // Buzzer Control - Payload에서 값 추출
+                uint8_t buzzer_command = rxBuf[16];  // 0: Off, 1: On
+                int32_t frequency = (rxBuf[17] << 24) | (rxBuf[18] << 16) | (rxBuf[19] << 8) | rxBuf[20];
 
-            // 부저 제어 수행
-            if (buzzer_command == 0x00)
-            {
-                Buzzer_Off();
-            }
-            else if (buzzer_command == 0x01)
-            {
-                if (Buzzer_SetFrequency(frequency))
+                // 부저 제어 수행
+                if (buzzer_command == 0x00)
                 {
-                    Buzzer_On();
+                    Buzzer_Off();
+                }
+                else if (buzzer_command == 0x01)
+                {
+                    if (Buzzer_SetFrequency(frequency))
+                    {
+                        Buzzer_On();
+                    }
                 }
             }
 
@@ -224,24 +230,28 @@ void SOMEIP_Service2_Callback (void *arg, struct udp_pcb *upcb, struct pbuf *p, 
         }
         else if (MethodID == 0x0202U)
         {
+
             // LED Control - Payload에서 led_side 및 led_command 값 추출
             uint8_t led_side = rxBuf[16];       // LED_BACK, LED_FRONT_DOWN, LED_FRONT_UP
             uint8_t led_command = rxBuf[17];    // 0: Off, 1: On, 2: Toggle
 
             LedSide side = (LedSide) led_side;
 
-            // LED 제어 수행
-            if (led_command == 0x00)
+            if (!(side == LED_BACK && isEmerAlertOn))
             {
-                LED_Off(side);
-            }
-            else if (led_command == 0x01)
-            {
-                LED_On(side);
-            }
-            else if (led_command == 0x02)
-            {
-                LED_Toggle(side);
+                // LED 제어 수행
+                if (led_command == 0x00)
+                {
+                    LED_Off(side);
+                }
+                else if (led_command == 0x01)
+                {
+                    LED_On(side);
+                }
+                else if (led_command == 0x02)
+                {
+                    LED_Toggle(side);
+                }
             }
 
             led_latest_data = LED_GetData(side);
