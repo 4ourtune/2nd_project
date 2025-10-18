@@ -9,7 +9,7 @@
     "process_check": "main_app",                                            // process_check: 실행 중인 프로세스를 식별하기 위한 키워드 (또는 systemd 서비스명)
     "target_path": "/home/pi/vc_software/apps/realtime/build/vc_realtime",  // target_path: 덮어쓸 대상 파일의 절대 경로 (라즈베리파이 쪽)
     "backup_path": "/home/pi/vc_software/apps/ota/backups/realtime/",       // backup_path: 교체 전 기존 파일을 백업할 경로
-    "source_path": "http://192.168.0.29:8000/build/vc_realtime"             // source_path: OTA 파일이 호스팅된 URL (파일 서버 주소)
+    "source_path": "http://192.168.137.1:8000/build/vc_realtime"             // source_path: OTA 파일이 호스팅된 URL (파일 서버 주소)
   },
   "actions": {  // actions: OTA 수행 순서를 단계별로 정의한 목록
     "precheck": [   // precheck: 업데이트 전 수행할 단계들 (프로세스 중지, 상태 확인 등)
