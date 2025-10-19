@@ -5,8 +5,8 @@ Description=Vehicle Computer OTA Update Service
 After=network.target
 
 [Service]
-WorkingDirectory=/home/hj/vc_software/ota_updater
-ExecStart=/usr/bin/python3 /home/hj/vc_software/ota_updater/ota_service.py
+WorkingDirectory=/home/hj/vc_software/apps/ota/
+ExecStart=/usr/bin/python3 /home/hj/vc_software/apps/ota/ota_service.py
 
 Type=simple
 User=hj

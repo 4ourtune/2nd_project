@@ -2,7 +2,6 @@
 #define SHARED_H
 
 #include <mutex>
-#include <atomic>
 #include <cstdint>
 
 struct JoystickData {
@@ -28,9 +27,13 @@ struct ControlOutput {
 };
 
 struct SharedData {
+    // 보호
+    std::mutex mtx;
+
     // 상태
-    std::atomic<bool> running{true};
-    std::atomic<bool> engine_on{false};
+    bool engine_on = false;
+    bool door_locked = true;
+    bool running = true;
 
     // 입력
     JoystickData joy{};
@@ -41,9 +44,6 @@ struct SharedData {
 
     // 출력
     ControlOutput out{};
-
-    // 보호
-    std::mutex mtx;
 };
 
 extern SharedData g_shared;

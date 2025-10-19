@@ -57,10 +57,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/hj/vc_software/apps/realtime
+CMAKE_SOURCE_DIR = /home/ts5516/2nd_project/vc_software/apps/realtime
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/hj/vc_software/apps/realtime/build
+CMAKE_BINARY_DIR = /home/ts5516/2nd_project/vc_software/apps/realtime/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -87,9 +87,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/hj/vc_software/apps/realtime/build/CMakeFiles /home/hj/vc_software/apps/realtime/build//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/ts5516/2nd_project/vc_software/apps/realtime/build/CMakeFiles /home/ts5516/2nd_project/vc_software/apps/realtime/build//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/hj/vc_software/apps/realtime/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/ts5516/2nd_project/vc_software/apps/realtime/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -176,6 +176,30 @@ control_thread.s: control_thread.cpp.s
 control_thread.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/vc_realtime.dir/build.make CMakeFiles/vc_realtime.dir/control_thread.cpp.s
 .PHONY : control_thread.cpp.s
+
+ipc_server.o: ipc_server.cpp.o
+.PHONY : ipc_server.o
+
+# target to build an object file
+ipc_server.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vc_realtime.dir/build.make CMakeFiles/vc_realtime.dir/ipc_server.cpp.o
+.PHONY : ipc_server.cpp.o
+
+ipc_server.i: ipc_server.cpp.i
+.PHONY : ipc_server.i
+
+# target to preprocess a source file
+ipc_server.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vc_realtime.dir/build.make CMakeFiles/vc_realtime.dir/ipc_server.cpp.i
+.PHONY : ipc_server.cpp.i
+
+ipc_server.s: ipc_server.cpp.s
+.PHONY : ipc_server.s
+
+# target to generate assembly for a file
+ipc_server.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vc_realtime.dir/build.make CMakeFiles/vc_realtime.dir/ipc_server.cpp.s
+.PHONY : ipc_server.cpp.s
 
 joystick_thread.o: joystick_thread.cpp.o
 .PHONY : joystick_thread.o
@@ -264,6 +288,9 @@ help:
 	@echo "... control_thread.o"
 	@echo "... control_thread.i"
 	@echo "... control_thread.s"
+	@echo "... ipc_server.o"
+	@echo "... ipc_server.i"
+	@echo "... ipc_server.s"
 	@echo "... joystick_thread.o"
 	@echo "... joystick_thread.i"
 	@echo "... joystick_thread.s"

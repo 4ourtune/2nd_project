@@ -1,7 +1,9 @@
 # apps/ota/config.py
-BROKER_HOST = "192.168.200.2"
+BROKER_HOST = "192.168.137.1"
 BROKER_PORT = 1883
 TOPIC = "ota/vehicle_control/update"
+
+REQUIRE_CONFIRM_DEFAULT = True  # 기본적으로 OTA 적용 전에 사용자 확인을 요구
 
 # OTA 디렉터리 설정
 import os
