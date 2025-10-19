@@ -48,7 +48,10 @@ int main(){
                           << " lux=" << g_shared.sensor.ambient_lux
                           << " out(thr=" << g_shared.out.throttle
                           << ",str=" << g_shared.out.steer
-                          << ",lamp=" << g_shared.out.headlamp_on
+                          << ",low=" << g_shared.out.front_low_beam_on
+                          << ",high=" << g_shared.out.front_high_beam_on
+                          << ",rear_alert=" << g_shared.out.rear_alert_on
+                          << ",buzzer=" << g_shared.out.buzzer_on
                           << ",aeb=" << g_shared.out.aeb_brake << ")\n";
                 last_log = t;
             }

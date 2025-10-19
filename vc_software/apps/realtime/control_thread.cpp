@@ -337,6 +337,11 @@ void control_thread(){
 
         ControlOutput out{};
 
+        out.front_low_beam_on  = engine;
+        out.front_high_beam_on = false;
+        out.rear_alert_on = false;
+        out.buzzer_on = false;
+
         if (!engine){
             aps.stop();
         } else {
@@ -349,7 +354,7 @@ void control_thread(){
                 aps.start();
             }
 
-            out.headlamp_on = (sen.ambient_lux < 50);
+            out.front_high_beam_on = (sen.ambient_lux < 50);
 
             uint64_t now_us = t_ms * 1000;
             if (mode == ControlMode::Auto && aps.active()){
@@ -376,6 +381,9 @@ void control_thread(){
             } else {
                 out.aeb_brake = false;
             }
+
+            out.rear_alert_on = out.aeb_brake;
+            out.buzzer_on     = out.aeb_brake;
         }
 
         last_mode = mode;

@@ -11,27 +11,34 @@ struct JoystickData {
 };
 
 struct SensorData {
-    int dist_cm = 999;      // 앞 장애물 거리(Stub)
-    int ambient_lux = 0;    // 조도(Stub)
-    int front_tof_mm = -1;  // 전방 ToF (mm)
-    int left_ultra_mm = -1; // 좌측 초음파 (mm)
-    int right_ultra_mm = -1; // 우측 초음파 (mm)
-    int rear_ultra_mm = -1;  // 후방 초음파 (mm)
-    uint64_t ts_ms = 0;
-    uint64_t front_ts_us = 0;
-    uint64_t left_ts_us = 0;
-    uint64_t right_ts_us = 0;
-    uint64_t rear_ts_us = 0;
+    int ambient_lux;    // 조도(Stub)
+    int front_tof_mm;  // 전방 ToF (mm)
+    int left_ultra_mm; // 좌측 초음파 (mm)
+    int right_ultra_mm; // 우측 초음파 (mm)
+    int rear_ultra_mm;  // 후방 초음파 (mm)
+    uint64_t ts_ms;
+    uint64_t front_ts_us;
+    uint64_t left_ts_us;
+    uint64_t right_ts_us;
+    uint64_t rear_ts_us;
 };
+ 
+
 
 enum class ControlMode : uint8_t { Manual=0, Assist=1, Auto=2 };
 
 struct ControlOutput {
-    int throttle = 0; // -100~+100
-    int steer = 0;    // -100~+100
-    bool headlamp_on = false;
-    bool aeb_brake = false;
-    uint64_t ts_ms = 0;
+    // buzzer
+    bool buzzerOn;
+    int32_t frequency; // 250 ~ 1000
+    // led
+    int side; // LED_BACK = 0, LED_FRONT_DOWN = 1, LED_FRONT_UP = 2
+    bool isOn;
+    // emerAlert
+    int64_t interval_ms; // 알람 토글 시간 간격 값. 0이면 계속 켜짐. -1이면 꺼짐
+    // motor
+    int throttle; // -100~+100
+    int steer;    // -100~+100
 };
 
 struct SharedData {

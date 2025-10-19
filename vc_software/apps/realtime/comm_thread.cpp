@@ -23,7 +23,10 @@ void comm_thread(){
         if (engine){
             std::cout << "[TX] thr=" << out.throttle
                       << " str=" << out.steer
-                      << " lamp=" << out.headlamp_on
+                      << " low=" << out.front_low_beam_on
+                      << " high=" << out.front_high_beam_on
+                      << " rear_alert=" << out.rear_alert_on
+                      << " buzzer=" << out.buzzer_on
                       << " aeb=" << out.aeb_brake << "\n";
         }
     }
