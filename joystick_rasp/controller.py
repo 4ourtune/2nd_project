@@ -36,6 +36,7 @@ class Controller:
                 msg = f"P{cur_swt:02}\0"
                 self.bt.send(msg)
                 self.emit(1, msg)
+                print(f"{time.time():.3f} [DEBUG] Send SWT={cur_swt}")
                 prev_swt = cur_swt
 
             # 🔹 조이스틱 변화 감지 (노이즈 필터 반영됨)
@@ -50,7 +51,7 @@ class Controller:
                 msg = f"M{cur_vrx:02}{cur_vry:02}\0"
                 self.bt.send(msg)
                 self.emit(1, msg)
-                print(f"[DEBUG] Send VRX={cur_vrx}, VRY={cur_vry}, Δ({delta_vrx},{delta_vry})")
+                print(f"{time.time():.3f} [DEBUG] Send VRX={cur_vrx}, VRY={cur_vry}, Δ({delta_vrx},{delta_vry})")
                 prev_vrx = cur_vrx
                 prev_vry = cur_vry
                 last_vr_send_time = now
