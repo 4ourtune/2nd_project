@@ -119,14 +119,24 @@ uint16_t Serialize_EmerAlertData (uint8_t *txBuf, uint16_t txLen, const EmerAler
 
 uint16_t Serialize_MotorControllerData (uint8_t *txBuf, uint16_t txLen, const MotorControllerData_t *data)
 {
-    // 1) motorChA_speed (int32_t → Big Endian)
-    int32_t a = htonl(data->motorChA_speed);
-    memcpy(&txBuf[txLen], &a, 4);
+    // 1) x (int32_t → Big Endian)
+    int32_t x_be = htonl(data->x);
+    memcpy(&txBuf[txLen], &x_be, 4);
     txLen += 4;
 
-    // 2) motorChB_speed (int32_t → Big Endian)
-    int32_t b = htonl(data->motorChB_speed);
-    memcpy(&txBuf[txLen], &b, 4);
+    // 2) y (int32_t → Big Endian)
+    int32_t y_be = htonl(data->y);
+    memcpy(&txBuf[txLen], &y_be, 4);
+    txLen += 4;
+
+    // 3) motorChA_speed (int32_t → Big Endian)
+    int32_t a_be = htonl(data->motorChA_speed);
+    memcpy(&txBuf[txLen], &a_be, 4);
+    txLen += 4;
+
+    // 4) motorChB_speed (int32_t → Big Endian)
+    int32_t b_be = htonl(data->motorChB_speed);
+    memcpy(&txBuf[txLen], &b_be, 4);
     txLen += 4;
 
     return txLen;

@@ -6,6 +6,8 @@
 
 typedef struct
 {
+    int32_t x;
+    int32_t y;
     int32_t motorChA_speed;
     int32_t motorChB_speed;
 } MotorControllerData_t;

@@ -12,7 +12,7 @@ typedef struct
 
 void Buzzer_Init (void);
 BuzzerData_t Buzzer_GetData (void);
-bool Buzzer_SetFrequency (int f);
+bool Buzzer_SetFrequency (int freq);
 void Buzzer_On (void);
 void Buzzer_Off (void);
 void Buzzer_Buzz (void);

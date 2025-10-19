@@ -3,6 +3,9 @@
 #include "gpio.h"
 #include "gpt12.h"
 
+#define MAX_FREQ 250000
+
+static int frequency;
 static int cntMax;
 static bool isOn;
 
@@ -15,21 +18,24 @@ void Buzzer_Init (void)
     /* Set initial state */
     Stop_Gpt12_T6();
     GPIO_SetBuzzer(false);
+    frequency = MAX_FREQ;
     cntMax = 1;
     isOn = false;
 }
 
 BuzzerData_t Buzzer_GetData (void)
 {
-    BuzzerData_t ret = {isOn, cntMax};
+    BuzzerData_t ret = {isOn, frequency};
     return ret;
 }
 
-bool Buzzer_SetFrequency (int f)
+bool Buzzer_SetFrequency (int freq)
 {
-    if (!(1 < f && f < 2147483647))
+    if (!(1 <= freq && freq <= MAX_FREQ))
         return false;
-    cntMax = f;
+
+    frequency = freq;
+    cntMax = (int) (MAX_FREQ / freq);
     return true;
 }
 

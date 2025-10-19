@@ -66,8 +66,11 @@ bool MotorController_ProcessJoystickInput (int x, int y)
 
     if (x == pre_x && y == pre_y)
         return false;
+
     pre_x = x;
     pre_y = y;
+    latest_data.x = x;
+    latest_data.y = y;
 
     int x_speed = MotorController_MapJoystickValue(x, JOYSTICK_DEADZONE);
     int y_speed = MotorController_MapJoystickValue(y, 0); // Y축은 데드존 없음

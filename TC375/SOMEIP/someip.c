@@ -27,7 +27,7 @@ void SOMEIP_Service1_Callback (void *arg, struct udp_pcb *upcb, struct pbuf *p, 
 void SOMEIP_Service2_Callback (void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_t *addr, uint16_t port);
 void SOMEIP_Service3_Callback (void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_t *addr, uint16_t port);
 static inline void SOMEIP_Update_Length (uint8_t *txBuf, uint16_t txLen);
-static void SOMEIP_Send_Response (struct udp_pcb *upcb, uint8_t *txBuf, uint16_t txLen, const ip_addr_t *addr,
+static void SOMEIP_Send_Data (struct udp_pcb *upcb, uint8_t *txBuf, uint16_t txLen, const ip_addr_t *addr,
         uint16_t port);
 
 struct udp_pcb *g_SOMEIP_SERVICE1_PCB;
@@ -149,7 +149,7 @@ void SOMEIP_Service1_Callback (void *arg, struct udp_pcb *upcb, struct pbuf *p, 
             SOMEIP_Update_Length(txBuf, txLen);
 
             // 응답 전송
-            SOMEIP_Send_Response(upcb, txBuf, txLen, addr, port);
+            SOMEIP_Send_Data(upcb, txBuf, txLen, addr, port);
         }
     }
     else if (ServiceID != 0x0100U)
@@ -208,16 +208,15 @@ void SOMEIP_Service2_Callback (void *arg, struct udp_pcb *upcb, struct pbuf *p, 
                 int32_t frequency = (rxBuf[17] << 24) | (rxBuf[18] << 16) | (rxBuf[19] << 8) | rxBuf[20];
 
                 // 부저 제어 수행
+                Buzzer_SetFrequency(frequency);
+
                 if (buzzer_command == 0x00)
                 {
                     Buzzer_Off();
                 }
                 else if (buzzer_command == 0x01)
                 {
-                    if (Buzzer_SetFrequency(frequency))
-                    {
-                        Buzzer_On();
-                    }
+                    Buzzer_On();
                 }
             }
 
@@ -230,7 +229,6 @@ void SOMEIP_Service2_Callback (void *arg, struct udp_pcb *upcb, struct pbuf *p, 
         }
         else if (MethodID == 0x0202U)
         {
-
             // LED Control - Payload에서 led_side 및 led_command 값 추출
             uint8_t led_side = rxBuf[16];       // LED_BACK, LED_FRONT_DOWN, LED_FRONT_UP
             uint8_t led_command = rxBuf[17];    // 0: Off, 1: On, 2: Toggle
@@ -268,7 +266,7 @@ void SOMEIP_Service2_Callback (void *arg, struct udp_pcb *upcb, struct pbuf *p, 
             SOMEIP_Update_Length(txBuf, txLen);
 
             // 응답 전송
-            SOMEIP_Send_Response(upcb, txBuf, txLen, addr, port);
+            SOMEIP_Send_Data(upcb, txBuf, txLen, addr, port);
         }
     }
     else if (ServiceID != 0x0200U)
@@ -345,7 +343,8 @@ void SOMEIP_Service3_Callback (void *arg, struct udp_pcb *upcb, struct pbuf *p, 
             {
                 motor_controller_latest_data = MotorController_GetData();
             }
-            my_printf("Motor Control: chA=%d, chB=%d\n", motor_controller_latest_data.motorChA_speed,
+            my_printf("Motor Control: x=%d, y=%d, chA=%d, chB=%d\n", motor_controller_latest_data.x,
+                    motor_controller_latest_data.y, motor_controller_latest_data.motorChA_speed,
                     motor_controller_latest_data.motorChB_speed);
 
             // Response payload 구성
@@ -359,7 +358,7 @@ void SOMEIP_Service3_Callback (void *arg, struct udp_pcb *upcb, struct pbuf *p, 
             SOMEIP_Update_Length(txBuf, txLen);
 
             // 응답 전송
-            SOMEIP_Send_Response(upcb, txBuf, txLen, addr, port);
+            SOMEIP_Send_Data(upcb, txBuf, txLen, addr, port);
         }
     }
     else if (ServiceID != 0x0300U)
@@ -381,7 +380,7 @@ static inline void SOMEIP_Update_Length (uint8_t *txBuf, uint16_t txLen)
     txBuf[7] = length & 0xFF;
 }
 
-static void SOMEIP_Send_Response (struct udp_pcb *upcb, uint8_t *txBuf, uint16_t txLen, const ip_addr_t *addr,
+static void SOMEIP_Send_Data (struct udp_pcb *upcb, uint8_t *txBuf, uint16_t txLen, const ip_addr_t *addr,
         uint16_t port)
 {
     err_t err;
@@ -410,11 +409,11 @@ static void SOMEIP_Send_Response (struct udp_pcb *upcb, uint8_t *txBuf, uint16_t
 
     if (err == ERR_OK)
     {
-        my_printf("Send SOME/IP Service Response with sensor data!!\n");
+        my_printf("[SOME/IP] Data transfer success!!\n");
     }
     else
     {
-        my_printf("Send SOME/IP Service Response Failed!! \n");
+        my_printf("[SOME/IP] Data transfer failed!! \n");
     }
 
     pbuf_free(txbuf);
