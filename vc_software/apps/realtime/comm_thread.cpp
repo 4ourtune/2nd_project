@@ -2,9 +2,12 @@
 #include "vc_common.h"
 #include "config.h"
 #include <iostream>
+#include "vsomeip_manager.h"
 
 void comm_thread(){
     set_realtime_sched(PRIO_COMM);
+
+    VSomeIPManager& someip = VSomeIPManager::getInstance();
 
     uint64_t last = 0;
     while(g_shared.running){
@@ -21,13 +24,34 @@ void comm_thread(){
         // Stub: 여기에 SOME/IP TX로 교체
         // EX: send_control(throttle, steer, lamp, aeb)
         if (engine){
-            std::cout << "[TX] thr=" << out.throttle
-                      << " str=" << out.steer
-                      << " low=" << out.front_low_beam_on
-                      << " high=" << out.front_high_beam_on
-                      << " rear_alert=" << out.rear_alert_on
-                      << " buzzer=" << out.buzzer_on
-                      << " aeb=" << out.aeb_brake << "\n";
+			static ControlOutput preOut;
+
+			if (out.buzzerOn != preOut.buzzerOn || out.frequency != preOut.frequency) {
+				someip.requestBuzzerControl(preOut.buzzerOn, out.frequency);
+				preOut.buzzerOn = out.buzzerOn;
+				preOut.frequency = out.frequency;
+                std::cout << "Request buzzer control\n";
+			}
+
+			if (out.side != preOut.side || out.isOn != preOut.isOn) {
+				someip.requestLedControl(out.side, out.isOn);
+				preOut.side = out.side;
+				preOut.isOn = out.isOn;
+                std::cout << "Request led control\n";
+			}
+
+			if (out.interval_ms != preOut.interval_ms) {
+				someip.requestAlertControl(out.interval_ms);
+				preOut.interval_ms = out.interval_ms;
+                std::cout << "Request emerAlert control\n";
+			}
+
+			if (out.throttle != preOut.throttle || out.steer != preOut.steer) {
+				someip.requestMotorControl(out.throttle, out.steer);
+				preOut.throttle = out.throttle;
+				preOut.steer = out.steer;
+                std::cout << "Request motor control\n";
+			}
         }
     }
 }
