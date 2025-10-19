@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/vc_realtime.dir/main.cpp.o CMakeFiles/vc_realtime.dir/joystick_thread.cpp.o CMakeFiles/vc_realtime.dir/sensor_thread.cpp.o CMakeFiles/vc_realtime.dir/control_thread.cpp.o CMakeFiles/vc_realtime.dir/comm_thread.cpp.o CMakeFiles/vc_realtime.dir/ipc_server.cpp.o -o vc_realtime  -lpthread 

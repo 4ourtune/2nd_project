@@ -4,4 +4,6 @@
 __pycache__/
 logs/
 *.log
-
+vc_software/apps/realtime/build/*
+build/** */
+!build/vc_realtime

@@ -1,0 +1,12 @@
+{
+  "version": "1.3.0",
+  "checksum": "bda22d7141a6bf844a457a7f2b6ab8e867ae5df7785a80a7b0619e799cbba773",
+  "description": "control thread update 파일 v1.3.0",
+  "target": {
+    "process_check": "realtime",
+    "target_path": "/home/hj/vc_software/apps/realtime/build/vc_realtime",
+    "backup_path": "/home/hj/vc_software/apps/ota/backups/realtime/",
+    "source_path": "http://192.168.137.1:8000/vc_realtime_v2"
+  },
+  "require_confirm": false
+}
