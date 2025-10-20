@@ -71,6 +71,7 @@ class VehicleBleServer:
         self.pairing_result_char = None
         ensure_runtime_dirs()
         self._chunk_assembler = CommandChunkAssembler()
+        self._pairing_result_assembler = CommandChunkAssembler()
         self._setup_services()
         self._is_shutting_down = False
 
@@ -109,7 +110,7 @@ class VehicleBleServer:
             PAIRING_RESULT_UUID,
             value=_json_to_dbus_bytes({"status": "INIT"}),
             notifying=False,
-            flags=["write", "notify", "encrypt-write"],
+            flags=["write", "write-without-response", "notify", "encrypt-write"],
             write_callback=self._on_pairing_result_write,
         )
         self.pairing_result_char = self.peripheral.characteristics[-1]
@@ -141,6 +142,27 @@ class VehicleBleServer:
         LOGGER.debug("Pairing result write: %s", value)
         try:
             payload = _bytes_to_json(value)
+            aggregated = None
+            if isinstance(payload, dict):
+                try:
+                    aggregated = self._pairing_result_assembler.ingest(payload)
+                except ValueError as chunk_exc:
+                    LOGGER.warning("Failed to assemble pairing result chunks: %s", chunk_exc)
+                    if self.pairing_result_char:
+                        error_payload = {
+                            "status": "ERROR",
+                            "message": f"chunk_assembly_failed: {chunk_exc}",
+                            "timestamp": int(time.time() * 1000),
+                        }
+                        self.pairing_result_char.set_value(_json_to_dbus_bytes(error_payload))
+                    return
+            if aggregated is None:
+                if isinstance(payload, dict) and any(k in payload for k in ("index", "total", "chunkIndex")):
+                    LOGGER.debug("Waiting for additional pairing_result chunks")
+                    return
+                aggregated = payload
+            payload = aggregated
+            LOGGER.info("Pairing result payload: %s", payload)
             ok, response = self.pairing_manager.handle_pairing_result(payload)
             if self.pairing_result_char:
                 self.pairing_result_char.set_value(_json_to_dbus_bytes(response))

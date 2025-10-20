@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import time
 from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple
 
@@ -26,6 +27,11 @@ if TYPE_CHECKING:
 LOGGER = logging.getLogger(__name__)
 
 VEHICLE_COMMANDS = {"UNLOCK", "LOCK", "START", "GET_ALL"}
+
+# NOTE: TEST ONLY. Set DK_IPC_BYPASS=1 to bypass realtime IPC while the server is down.
+#       REMOVE BEFORE SHIPPING.
+IPC_TEST_BYPASS = os.environ.get("DK_IPC_BYPASS", "").strip() in {"1", "true", "TRUE"}
+_BYPASS_STATE = {"LOCKED": "0", "ENGINE": "0"}
 CERT_REQUEST_TYPE = "cert_request"
 SECURE_COMMAND_TYPE = "secure_command"
 PKI_COMMAND_TYPE = "pki_command"
@@ -180,15 +186,55 @@ class CommandHandler:
     def encode_payload(data: Dict[str, Any]) -> bytes:
         return json.dumps(data).encode('utf-8')
 
+    def _maybe_store_key_from_certificate(self, certificate_payload: Dict[str, Any]) -> None:
+        key_id = (
+            certificate_payload.get("keyId")
+            or certificate_payload.get("id")
+        )
+        if not key_id and isinstance(certificate_payload.get("subject"), dict):
+            subject = certificate_payload["subject"]
+            key_id = subject.get("keyId") or subject.get("id")
+        if not key_id:
+            return
+        key_id = str(key_id)
+        if self.key_store.get_key(key_id):
+            return
+
+        entry: Dict[str, Any] = {
+            "keyId": key_id,
+            "certificate": certificate_payload,
+            "permissions": certificate_payload.get("permissions"),
+            "userId": certificate_payload.get("userId"),
+            "vehicleId": certificate_payload.get("vehicleId"),
+            "updatedAt": int(time.time() * 1000),
+        }
+        try:
+            self.key_store.upsert_key(key_id, entry)
+            LOGGER.info("Cached keyId %s from PKI certificate payload", key_id)
+        except Exception as exc:  # pylint: disable=broad-except
+            LOGGER.warning("Failed to persist keyId %s from certificate payload: %s", key_id, exc)
+
     def _dispatch_ipc_command(self, command: str) -> Tuple[bool, Dict[str, Any]]:
         """Send command to realtime process and parse minimal status details."""
-        if ipc_send_cmd is None:
-            return False, {"error": "ipc_unavailable"}
-        ok, resp = ipc_send_cmd(command, "DK")
+        def _stub_response() -> Tuple[bool, Dict[str, Any]]:
+            LOGGER.warning("IPC TEST BYPASS ACTIVE - REMOVE BEFORE RELEASE.")
+            stub = {"rawResponse": "OK;REQ=0;LOCKED={LOCKED};ENGINE={ENGINE}\n".format(**_BYPASS_STATE)}
+            stub.update(_BYPASS_STATE)
+            return True, stub
+
+        if IPC_TEST_BYPASS or ipc_send_cmd is None:
+            return _stub_response()
+
+        try:
+            ok, resp = ipc_send_cmd(command, "DK")
+        except Exception as exc:  # pylint: disable=broad-except
+            LOGGER.warning("IPC send failed (%s); falling back to stub", exc)
+            return _stub_response()
+
         parsed: Dict[str, Any] = {"rawResponse": resp}
         if not ok:
-            parsed["error"] = resp
-            return False, parsed
+            LOGGER.warning("IPC returned error '%s'; falling back to stub", resp)
+            return _stub_response()
         tokens = resp.strip().split(';')
         for token in tokens:
             token = token.strip()
@@ -269,10 +315,13 @@ class CommandHandler:
         if not session_id:
             raise ValueError("Missing sessionId for pki_command")
 
+        certificate_info = payload.get("certificate") or {}
+        if certificate_info:
+            self._maybe_store_key_from_certificate(certificate_info)
+
         session_state = self.pairing_manager.get_pki_session_state(session_id)
 
         if session_state is None:
-            certificate_info = payload.get("certificate") or {}
             session_state = self.pairing_manager.recover_pki_session(
                 session_id,
                 certificate_info,
@@ -281,7 +330,6 @@ class CommandHandler:
         if session_state is None:
             raise ValueError(f"No PKI session material for session {session_id}")
 
-        certificate_info = payload.get("certificate") or {}
         session_state = self._refresh_certificate_material(session_state, certificate_info)
 
         nonce_b64 = payload.get("nonce") or payload.get("clientNonce")

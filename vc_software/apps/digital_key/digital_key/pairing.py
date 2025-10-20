@@ -157,6 +157,7 @@ class PairingManager:
         self._pin_state_lock = threading.RLock()
         self._pin_session_state: Optional[PinSessionState] = None
         self._pki_state: Optional[PkiSessionState] = None
+        self._pki_sessions: Dict[str, PkiSessionState] = {}
         self._pin_poll_thread: Optional[threading.Thread] = None
         self._pin_poll_stop = threading.Event()
         self._session_observers: List[Callable[[Optional[PinSessionState]], None]] = []
@@ -194,9 +195,16 @@ class PairingManager:
                 continue
             mapping[str(key_id)] = entry
 
+        if not mapping:
+            LOGGER.warning(
+                "Key sync (%s) skipped: server returned 0 entries (vehicleId=%s)",
+                reason,
+                self.header_vehicle_id,
+            )
+            return False
+
         self.key_store.replace_all(mapping)
-        logger_fn = LOGGER.info if mapping else LOGGER.warning
-        logger_fn(
+        LOGGER.info(
             "Key sync (%s) completed with %d entries (vehicleId=%s)",
             reason,
             len(mapping),
@@ -251,12 +259,12 @@ class PairingManager:
                 challenge["ownerCandidateUserId"] = session.owner_candidate_user_id
             if vehicle_public_key:
                 challenge["vehiclePublicKey"] = vehicle_public_key
-            with self._pin_state_lock:
-                if self._pki_state and self._pki_state.session_id == session.session_id:
-                    challenge["vehicleNonce"] = base64.b64encode(self._pki_state.vehicle_nonce).decode(
-                        "ascii"
-                    )
-                    challenge["pairingToken"] = self._pki_state.pairing_token
+            existing_state = self.get_pki_session_state(session.session_id)
+            if existing_state:
+                challenge["vehicleNonce"] = base64.b64encode(existing_state.vehicle_nonce).decode(
+                    "ascii"
+                )
+                challenge["pairingToken"] = existing_state.pairing_token
             self._last_challenge = challenge
 
             LOGGER.info(
@@ -287,11 +295,16 @@ class PairingManager:
         """Persist backend-provided key material and return notify payload."""
         session_id = str(payload.get("sessionId") or "")
         if not session_id:
-            return False, {
-                "status": "ERROR",
-                "message": "Missing sessionId in pairing result payload",
-                "timestamp": int(time.time() * 1000),
-            }
+            candidate = self._last_session_id or (self._active_session.session_id if self._active_session else "")
+            if candidate:
+                LOGGER.warning("Pairing result missing sessionId; using last session %s", candidate)
+                session_id = candidate
+            else:
+                return False, {
+                    "status": "ERROR",
+                    "message": "Missing sessionId in pairing result payload",
+                    "timestamp": int(time.time() * 1000),
+                }
 
         if "clientNonce" in payload or "signature" in payload:
             return self._handle_pairing_handshake(session_id, payload)
@@ -308,7 +321,7 @@ class PairingManager:
 
     def _handle_pairing_handshake(self, session_id: str, payload: Dict[str, Any]) -> Tuple[bool, Dict[str, Any]]:
         with self._pin_state_lock:
-            pki_state = self._pki_state
+            pki_state = self._pki_sessions.get(session_id)
             pin_state = self._pin_session_state
         if pki_state is None or pki_state.session_id != session_id:
             LOGGER.warning("Handshake received for session %s but PKI state is unavailable", session_id)
@@ -450,12 +463,16 @@ class PairingManager:
     def get_pki_session_state(self, session_id: Optional[str] = None) -> Optional[PkiSessionState]:
         """Return the active PKI session state, optionally filtered by sessionId."""
         with self._pin_state_lock:
-            state = self._pki_state
-            if state is None:
-                return None
-            if session_id and state.session_id != session_id:
-                return None
-            return state
+            if session_id:
+                return self._pki_sessions.get(session_id)
+            if self._pki_state is not None:
+                return self._pki_state
+            if self._last_session_id and self._last_session_id in self._pki_sessions:
+                return self._pki_sessions[self._last_session_id]
+            # fall back to any cached session
+            if self._pki_sessions:
+                return next(iter(self._pki_sessions.values()))
+            return None
 
     def _build_pin_payload(self) -> Dict[str, Any]:
         payload: Dict[str, Any] = {}
@@ -475,8 +492,7 @@ class PairingManager:
         return "400" in message or "already" in message or "duplicate" in message
 
     def _build_cached_challenge(self, nonce: str, issued_at: int) -> Dict[str, Any]:
-        with self._pin_state_lock:
-            pki_state = self._pki_state
+        pki_state = self.get_pki_session_state()
         if pki_state is not None:
             try:
                 vehicle_public_key = load_vehicle_keys().public_key_pem
@@ -592,8 +608,8 @@ class PairingManager:
             self._last_session_id = session_id
 
         with self._pin_state_lock:
-            existing_state = self._pki_state
-        if existing_state and existing_state.session_id == session_id:
+            existing_state = self._pki_sessions.get(session_id)
+        if existing_state:
             if context.user_public_key:
                 existing_state.user_public_key_pem = context.user_public_key
                 existing_state.handshake_public_key_pem = context.user_public_key
@@ -602,7 +618,9 @@ class PairingManager:
                     existing_state.client_nonce = base64.b64decode(context.client_nonce)
                 except ValueError:
                     pass
-            self._pki_state = existing_state
+            with self._pin_state_lock:
+                self._pki_state = existing_state
+                self._pki_sessions[session_id] = existing_state
             self._export_pki_session_state()
 
         vehicle_nonce = context.vehicle_nonce
@@ -730,8 +748,8 @@ class PairingManager:
         with self._pin_state_lock:
             self._handshake_contexts[session_id] = context
             self._pending_handshake = context
-            state = self._pki_state
-            if state and state.session_id == session_id:
+            state = self._pki_sessions.get(session_id)
+            if state:
                 if public_key_pem:
                     if not state.user_public_key_pem:
                         state.user_public_key_pem = public_key_pem
@@ -741,7 +759,9 @@ class PairingManager:
                 if certificate_pem:
                     state.user_certificate_pem = certificate_pem
                 updated_state = state
+                self._pki_sessions[session_id] = state
                 self._pki_state = state
+                self._last_session_id = session_id
         if updated_state is not None:
             self._export_pki_session_state()
 
@@ -838,6 +858,7 @@ class PairingManager:
 
         with self._pin_state_lock:
             self._pki_state = state
+            self._pki_sessions[session_id] = state
             if self._pending_handshake and self._pending_handshake.session_id == session_id:
                 self._pending_handshake = None
             self._last_session_id = session_id
@@ -894,6 +915,8 @@ class PairingManager:
 
         with self._pin_state_lock:
             template = self._pki_state
+            if session_id in self._pki_sessions:
+                template = self._pki_sessions[session_id]
             pin_state = self._pin_session_state
 
         pairing_token = None
@@ -963,6 +986,8 @@ class PairingManager:
                 new_state.signature_verified = True
         with self._pin_state_lock:
             self._pki_state = new_state
+            self._pki_sessions[session_id] = new_state
+            self._last_session_id = session_id
         self._export_pki_session_state()
         return new_state
 
@@ -1008,6 +1033,8 @@ class PairingManager:
 
             with self._pin_state_lock:
                 self._pki_state = state
+                self._pki_sessions[session_id] = state
+                self._last_session_id = session_id
             LOGGER.info("Restored cached PKI session %s from %s", session_id, path)
         except Exception as exc:  # pylint: disable=broad-except
             message = str(exc)
@@ -1030,6 +1057,7 @@ class PairingManager:
             state = self._pki_state
         if state is None:
             self._cached_pki_payload = None
+            self._pki_sessions.clear()
             try:
                 if path.exists():
                     path.unlink()
@@ -1095,6 +1123,7 @@ class PairingManager:
         with self._pin_state_lock:
             self._pin_session_state = state
             self._pki_state = None
+            self._pki_sessions.pop(session.session_id, None)
         self._publish_pin_session_state(state)
         self._export_pki_session_state()
         self._start_pin_status_poller(session.session_id)
@@ -1258,6 +1287,8 @@ class PairingManager:
 
         with self._pin_state_lock:
             self._pki_state = pki_state
+            self._pki_sessions[pki_state.session_id] = pki_state
+            self._last_session_id = pki_state.session_id
             if self._pin_session_state and self._pin_session_state.session_id == status.session_id:
                 self._pin_session_state.pairing_token = pki_state.pairing_token
                 self._pin_session_state.vehicle_nonce_b64 = base64.b64encode(
