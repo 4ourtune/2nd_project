@@ -57,10 +57,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/ts5516/2nd_project/vc_software/apps/realtime
+CMAKE_SOURCE_DIR = /home/seungju/2nd_project/vc_software/apps/realtime
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/ts5516/2nd_project/vc_software/apps/realtime/build
+CMAKE_BINARY_DIR = /home/seungju/2nd_project/vc_software/apps/realtime/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -87,9 +87,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/ts5516/2nd_project/vc_software/apps/realtime/build/CMakeFiles /home/ts5516/2nd_project/vc_software/apps/realtime/build//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/seungju/2nd_project/vc_software/apps/realtime/build/CMakeFiles /home/seungju/2nd_project/vc_software/apps/realtime/build//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/ts5516/2nd_project/vc_software/apps/realtime/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/seungju/2nd_project/vc_software/apps/realtime/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -117,24 +117,24 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named vc_realtime
+# Target rules for targets named sensor_comm_test
 
 # Build rule for target.
-vc_realtime: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 vc_realtime
-.PHONY : vc_realtime
+sensor_comm_test: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 sensor_comm_test
+.PHONY : sensor_comm_test
 
 # fast build rule for target.
-vc_realtime/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vc_realtime.dir/build.make CMakeFiles/vc_realtime.dir/build
-.PHONY : vc_realtime/fast
+sensor_comm_test/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sensor_comm_test.dir/build.make CMakeFiles/sensor_comm_test.dir/build
+.PHONY : sensor_comm_test/fast
 
 comm_thread.o: comm_thread.cpp.o
 .PHONY : comm_thread.o
 
 # target to build an object file
 comm_thread.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vc_realtime.dir/build.make CMakeFiles/vc_realtime.dir/comm_thread.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sensor_comm_test.dir/build.make CMakeFiles/sensor_comm_test.dir/comm_thread.cpp.o
 .PHONY : comm_thread.cpp.o
 
 comm_thread.i: comm_thread.cpp.i
@@ -142,7 +142,7 @@ comm_thread.i: comm_thread.cpp.i
 
 # target to preprocess a source file
 comm_thread.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vc_realtime.dir/build.make CMakeFiles/vc_realtime.dir/comm_thread.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sensor_comm_test.dir/build.make CMakeFiles/sensor_comm_test.dir/comm_thread.cpp.i
 .PHONY : comm_thread.cpp.i
 
 comm_thread.s: comm_thread.cpp.s
@@ -150,7 +150,7 @@ comm_thread.s: comm_thread.cpp.s
 
 # target to generate assembly for a file
 comm_thread.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vc_realtime.dir/build.make CMakeFiles/vc_realtime.dir/comm_thread.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sensor_comm_test.dir/build.make CMakeFiles/sensor_comm_test.dir/comm_thread.cpp.s
 .PHONY : comm_thread.cpp.s
 
 control_thread.o: control_thread.cpp.o
@@ -158,7 +158,7 @@ control_thread.o: control_thread.cpp.o
 
 # target to build an object file
 control_thread.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vc_realtime.dir/build.make CMakeFiles/vc_realtime.dir/control_thread.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sensor_comm_test.dir/build.make CMakeFiles/sensor_comm_test.dir/control_thread.cpp.o
 .PHONY : control_thread.cpp.o
 
 control_thread.i: control_thread.cpp.i
@@ -166,7 +166,7 @@ control_thread.i: control_thread.cpp.i
 
 # target to preprocess a source file
 control_thread.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vc_realtime.dir/build.make CMakeFiles/vc_realtime.dir/control_thread.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sensor_comm_test.dir/build.make CMakeFiles/sensor_comm_test.dir/control_thread.cpp.i
 .PHONY : control_thread.cpp.i
 
 control_thread.s: control_thread.cpp.s
@@ -174,63 +174,15 @@ control_thread.s: control_thread.cpp.s
 
 # target to generate assembly for a file
 control_thread.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vc_realtime.dir/build.make CMakeFiles/vc_realtime.dir/control_thread.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sensor_comm_test.dir/build.make CMakeFiles/sensor_comm_test.dir/control_thread.cpp.s
 .PHONY : control_thread.cpp.s
-
-ipc_server.o: ipc_server.cpp.o
-.PHONY : ipc_server.o
-
-# target to build an object file
-ipc_server.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vc_realtime.dir/build.make CMakeFiles/vc_realtime.dir/ipc_server.cpp.o
-.PHONY : ipc_server.cpp.o
-
-ipc_server.i: ipc_server.cpp.i
-.PHONY : ipc_server.i
-
-# target to preprocess a source file
-ipc_server.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vc_realtime.dir/build.make CMakeFiles/vc_realtime.dir/ipc_server.cpp.i
-.PHONY : ipc_server.cpp.i
-
-ipc_server.s: ipc_server.cpp.s
-.PHONY : ipc_server.s
-
-# target to generate assembly for a file
-ipc_server.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vc_realtime.dir/build.make CMakeFiles/vc_realtime.dir/ipc_server.cpp.s
-.PHONY : ipc_server.cpp.s
-
-joystick_thread.o: joystick_thread.cpp.o
-.PHONY : joystick_thread.o
-
-# target to build an object file
-joystick_thread.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vc_realtime.dir/build.make CMakeFiles/vc_realtime.dir/joystick_thread.cpp.o
-.PHONY : joystick_thread.cpp.o
-
-joystick_thread.i: joystick_thread.cpp.i
-.PHONY : joystick_thread.i
-
-# target to preprocess a source file
-joystick_thread.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vc_realtime.dir/build.make CMakeFiles/vc_realtime.dir/joystick_thread.cpp.i
-.PHONY : joystick_thread.cpp.i
-
-joystick_thread.s: joystick_thread.cpp.s
-.PHONY : joystick_thread.s
-
-# target to generate assembly for a file
-joystick_thread.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vc_realtime.dir/build.make CMakeFiles/vc_realtime.dir/joystick_thread.cpp.s
-.PHONY : joystick_thread.cpp.s
 
 main.o: main.cpp.o
 .PHONY : main.o
 
 # target to build an object file
 main.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vc_realtime.dir/build.make CMakeFiles/vc_realtime.dir/main.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sensor_comm_test.dir/build.make CMakeFiles/sensor_comm_test.dir/main.cpp.o
 .PHONY : main.cpp.o
 
 main.i: main.cpp.i
@@ -238,7 +190,7 @@ main.i: main.cpp.i
 
 # target to preprocess a source file
 main.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vc_realtime.dir/build.make CMakeFiles/vc_realtime.dir/main.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sensor_comm_test.dir/build.make CMakeFiles/sensor_comm_test.dir/main.cpp.i
 .PHONY : main.cpp.i
 
 main.s: main.cpp.s
@@ -246,7 +198,7 @@ main.s: main.cpp.s
 
 # target to generate assembly for a file
 main.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vc_realtime.dir/build.make CMakeFiles/vc_realtime.dir/main.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sensor_comm_test.dir/build.make CMakeFiles/sensor_comm_test.dir/main.cpp.s
 .PHONY : main.cpp.s
 
 sensor_thread.o: sensor_thread.cpp.o
@@ -254,7 +206,7 @@ sensor_thread.o: sensor_thread.cpp.o
 
 # target to build an object file
 sensor_thread.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vc_realtime.dir/build.make CMakeFiles/vc_realtime.dir/sensor_thread.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sensor_comm_test.dir/build.make CMakeFiles/sensor_comm_test.dir/sensor_thread.cpp.o
 .PHONY : sensor_thread.cpp.o
 
 sensor_thread.i: sensor_thread.cpp.i
@@ -262,7 +214,7 @@ sensor_thread.i: sensor_thread.cpp.i
 
 # target to preprocess a source file
 sensor_thread.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vc_realtime.dir/build.make CMakeFiles/vc_realtime.dir/sensor_thread.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sensor_comm_test.dir/build.make CMakeFiles/sensor_comm_test.dir/sensor_thread.cpp.i
 .PHONY : sensor_thread.cpp.i
 
 sensor_thread.s: sensor_thread.cpp.s
@@ -270,8 +222,56 @@ sensor_thread.s: sensor_thread.cpp.s
 
 # target to generate assembly for a file
 sensor_thread.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vc_realtime.dir/build.make CMakeFiles/vc_realtime.dir/sensor_thread.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sensor_comm_test.dir/build.make CMakeFiles/sensor_comm_test.dir/sensor_thread.cpp.s
 .PHONY : sensor_thread.cpp.s
+
+shared.o: shared.cpp.o
+.PHONY : shared.o
+
+# target to build an object file
+shared.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sensor_comm_test.dir/build.make CMakeFiles/sensor_comm_test.dir/shared.cpp.o
+.PHONY : shared.cpp.o
+
+shared.i: shared.cpp.i
+.PHONY : shared.i
+
+# target to preprocess a source file
+shared.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sensor_comm_test.dir/build.make CMakeFiles/sensor_comm_test.dir/shared.cpp.i
+.PHONY : shared.cpp.i
+
+shared.s: shared.cpp.s
+.PHONY : shared.s
+
+# target to generate assembly for a file
+shared.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sensor_comm_test.dir/build.make CMakeFiles/sensor_comm_test.dir/shared.cpp.s
+.PHONY : shared.cpp.s
+
+vsomeip_manager.o: vsomeip_manager.cpp.o
+.PHONY : vsomeip_manager.o
+
+# target to build an object file
+vsomeip_manager.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sensor_comm_test.dir/build.make CMakeFiles/sensor_comm_test.dir/vsomeip_manager.cpp.o
+.PHONY : vsomeip_manager.cpp.o
+
+vsomeip_manager.i: vsomeip_manager.cpp.i
+.PHONY : vsomeip_manager.i
+
+# target to preprocess a source file
+vsomeip_manager.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sensor_comm_test.dir/build.make CMakeFiles/sensor_comm_test.dir/vsomeip_manager.cpp.i
+.PHONY : vsomeip_manager.cpp.i
+
+vsomeip_manager.s: vsomeip_manager.cpp.s
+.PHONY : vsomeip_manager.s
+
+# target to generate assembly for a file
+vsomeip_manager.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sensor_comm_test.dir/build.make CMakeFiles/sensor_comm_test.dir/vsomeip_manager.cpp.s
+.PHONY : vsomeip_manager.cpp.s
 
 # Help Target
 help:
@@ -281,25 +281,25 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... vc_realtime"
+	@echo "... sensor_comm_test"
 	@echo "... comm_thread.o"
 	@echo "... comm_thread.i"
 	@echo "... comm_thread.s"
 	@echo "... control_thread.o"
 	@echo "... control_thread.i"
 	@echo "... control_thread.s"
-	@echo "... ipc_server.o"
-	@echo "... ipc_server.i"
-	@echo "... ipc_server.s"
-	@echo "... joystick_thread.o"
-	@echo "... joystick_thread.i"
-	@echo "... joystick_thread.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
 	@echo "... sensor_thread.o"
 	@echo "... sensor_thread.i"
 	@echo "... sensor_thread.s"
+	@echo "... shared.o"
+	@echo "... shared.i"
+	@echo "... shared.s"
+	@echo "... vsomeip_manager.o"
+	@echo "... vsomeip_manager.i"
+	@echo "... vsomeip_manager.s"
 .PHONY : help
 
 

@@ -1,4 +1,4 @@
-# Install script for directory: /home/ts5516/2nd_project/vc_software/apps/realtime
+# Install script for directory: /home/seungju/2nd_project/vc_software/apps/realtime
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -50,5 +50,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/ts5516/2nd_project/vc_software/apps/realtime/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/seungju/2nd_project/vc_software/apps/realtime/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

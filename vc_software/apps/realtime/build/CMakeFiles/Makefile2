@@ -54,16 +54,16 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/ts5516/2nd_project/vc_software/apps/realtime
+CMAKE_SOURCE_DIR = /home/seungju/2nd_project/vc_software/apps/realtime
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/ts5516/2nd_project/vc_software/apps/realtime/build
+CMAKE_BINARY_DIR = /home/seungju/2nd_project/vc_software/apps/realtime/build
 
 #=============================================================================
 # Directory level rules for the build root directory
 
 # The main recursive "all" target.
-all: CMakeFiles/vc_realtime.dir/all
+all: CMakeFiles/sensor_comm_test.dir/all
 .PHONY : all
 
 # The main recursive "preinstall" target.
@@ -71,34 +71,34 @@ preinstall:
 .PHONY : preinstall
 
 # The main recursive "clean" target.
-clean: CMakeFiles/vc_realtime.dir/clean
+clean: CMakeFiles/sensor_comm_test.dir/clean
 .PHONY : clean
 
 #=============================================================================
-# Target rules for target CMakeFiles/vc_realtime.dir
+# Target rules for target CMakeFiles/sensor_comm_test.dir
 
 # All Build rule for target.
-CMakeFiles/vc_realtime.dir/all:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vc_realtime.dir/build.make CMakeFiles/vc_realtime.dir/depend
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vc_realtime.dir/build.make CMakeFiles/vc_realtime.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/ts5516/2nd_project/vc_software/apps/realtime/build/CMakeFiles --progress-num=1,2,3,4,5,6,7 "Built target vc_realtime"
-.PHONY : CMakeFiles/vc_realtime.dir/all
+CMakeFiles/sensor_comm_test.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sensor_comm_test.dir/build.make CMakeFiles/sensor_comm_test.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sensor_comm_test.dir/build.make CMakeFiles/sensor_comm_test.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/seungju/2nd_project/vc_software/apps/realtime/build/CMakeFiles --progress-num=1,2,3,4,5,6,7 "Built target sensor_comm_test"
+.PHONY : CMakeFiles/sensor_comm_test.dir/all
 
 # Build rule for subdir invocation for target.
-CMakeFiles/vc_realtime.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/ts5516/2nd_project/vc_software/apps/realtime/build/CMakeFiles 7
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/vc_realtime.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/ts5516/2nd_project/vc_software/apps/realtime/build/CMakeFiles 0
-.PHONY : CMakeFiles/vc_realtime.dir/rule
+CMakeFiles/sensor_comm_test.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/seungju/2nd_project/vc_software/apps/realtime/build/CMakeFiles 7
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/sensor_comm_test.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/seungju/2nd_project/vc_software/apps/realtime/build/CMakeFiles 0
+.PHONY : CMakeFiles/sensor_comm_test.dir/rule
 
 # Convenience name for target.
-vc_realtime: CMakeFiles/vc_realtime.dir/rule
-.PHONY : vc_realtime
+sensor_comm_test: CMakeFiles/sensor_comm_test.dir/rule
+.PHONY : sensor_comm_test
 
 # clean rule for target.
-CMakeFiles/vc_realtime.dir/clean:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vc_realtime.dir/build.make CMakeFiles/vc_realtime.dir/clean
-.PHONY : CMakeFiles/vc_realtime.dir/clean
+CMakeFiles/sensor_comm_test.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sensor_comm_test.dir/build.make CMakeFiles/sensor_comm_test.dir/clean
+.PHONY : CMakeFiles/sensor_comm_test.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

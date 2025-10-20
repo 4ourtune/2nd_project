@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/ts5516/2nd_project/vc_software/apps/realtime
+CMAKE_SOURCE_DIR = /home/seungju/2nd_project/vc_software/apps/realtime
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/ts5516/2nd_project/vc_software/apps/realtime/build
+CMAKE_BINARY_DIR = /home/seungju/2nd_project/vc_software/apps/realtime/build
 
 # Include any dependencies generated for this target.
 include CMakeFiles/vc_realtime.dir/depend.make
@@ -70,110 +70,118 @@ include CMakeFiles/vc_realtime.dir/progress.make
 include CMakeFiles/vc_realtime.dir/flags.make
 
 CMakeFiles/vc_realtime.dir/main.cpp.o: CMakeFiles/vc_realtime.dir/flags.make
-CMakeFiles/vc_realtime.dir/main.cpp.o: /home/ts5516/2nd_project/vc_software/apps/realtime/main.cpp
+CMakeFiles/vc_realtime.dir/main.cpp.o: /home/seungju/2nd_project/vc_software/apps/realtime/main.cpp
 CMakeFiles/vc_realtime.dir/main.cpp.o: CMakeFiles/vc_realtime.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ts5516/2nd_project/vc_software/apps/realtime/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/vc_realtime.dir/main.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/vc_realtime.dir/main.cpp.o -MF CMakeFiles/vc_realtime.dir/main.cpp.o.d -o CMakeFiles/vc_realtime.dir/main.cpp.o -c /home/ts5516/2nd_project/vc_software/apps/realtime/main.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/seungju/2nd_project/vc_software/apps/realtime/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/vc_realtime.dir/main.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/vc_realtime.dir/main.cpp.o -MF CMakeFiles/vc_realtime.dir/main.cpp.o.d -o CMakeFiles/vc_realtime.dir/main.cpp.o -c /home/seungju/2nd_project/vc_software/apps/realtime/main.cpp
 
 CMakeFiles/vc_realtime.dir/main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/vc_realtime.dir/main.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ts5516/2nd_project/vc_software/apps/realtime/main.cpp > CMakeFiles/vc_realtime.dir/main.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/seungju/2nd_project/vc_software/apps/realtime/main.cpp > CMakeFiles/vc_realtime.dir/main.cpp.i
 
 CMakeFiles/vc_realtime.dir/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/vc_realtime.dir/main.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ts5516/2nd_project/vc_software/apps/realtime/main.cpp -o CMakeFiles/vc_realtime.dir/main.cpp.s
-
-CMakeFiles/vc_realtime.dir/joystick_thread.cpp.o: CMakeFiles/vc_realtime.dir/flags.make
-CMakeFiles/vc_realtime.dir/joystick_thread.cpp.o: /home/ts5516/2nd_project/vc_software/apps/realtime/joystick_thread.cpp
-CMakeFiles/vc_realtime.dir/joystick_thread.cpp.o: CMakeFiles/vc_realtime.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ts5516/2nd_project/vc_software/apps/realtime/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/vc_realtime.dir/joystick_thread.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/vc_realtime.dir/joystick_thread.cpp.o -MF CMakeFiles/vc_realtime.dir/joystick_thread.cpp.o.d -o CMakeFiles/vc_realtime.dir/joystick_thread.cpp.o -c /home/ts5516/2nd_project/vc_software/apps/realtime/joystick_thread.cpp
-
-CMakeFiles/vc_realtime.dir/joystick_thread.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/vc_realtime.dir/joystick_thread.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ts5516/2nd_project/vc_software/apps/realtime/joystick_thread.cpp > CMakeFiles/vc_realtime.dir/joystick_thread.cpp.i
-
-CMakeFiles/vc_realtime.dir/joystick_thread.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/vc_realtime.dir/joystick_thread.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ts5516/2nd_project/vc_software/apps/realtime/joystick_thread.cpp -o CMakeFiles/vc_realtime.dir/joystick_thread.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/seungju/2nd_project/vc_software/apps/realtime/main.cpp -o CMakeFiles/vc_realtime.dir/main.cpp.s
 
 CMakeFiles/vc_realtime.dir/sensor_thread.cpp.o: CMakeFiles/vc_realtime.dir/flags.make
-CMakeFiles/vc_realtime.dir/sensor_thread.cpp.o: /home/ts5516/2nd_project/vc_software/apps/realtime/sensor_thread.cpp
+CMakeFiles/vc_realtime.dir/sensor_thread.cpp.o: /home/seungju/2nd_project/vc_software/apps/realtime/sensor_thread.cpp
 CMakeFiles/vc_realtime.dir/sensor_thread.cpp.o: CMakeFiles/vc_realtime.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ts5516/2nd_project/vc_software/apps/realtime/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/vc_realtime.dir/sensor_thread.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/vc_realtime.dir/sensor_thread.cpp.o -MF CMakeFiles/vc_realtime.dir/sensor_thread.cpp.o.d -o CMakeFiles/vc_realtime.dir/sensor_thread.cpp.o -c /home/ts5516/2nd_project/vc_software/apps/realtime/sensor_thread.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/seungju/2nd_project/vc_software/apps/realtime/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/vc_realtime.dir/sensor_thread.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/vc_realtime.dir/sensor_thread.cpp.o -MF CMakeFiles/vc_realtime.dir/sensor_thread.cpp.o.d -o CMakeFiles/vc_realtime.dir/sensor_thread.cpp.o -c /home/seungju/2nd_project/vc_software/apps/realtime/sensor_thread.cpp
 
 CMakeFiles/vc_realtime.dir/sensor_thread.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/vc_realtime.dir/sensor_thread.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ts5516/2nd_project/vc_software/apps/realtime/sensor_thread.cpp > CMakeFiles/vc_realtime.dir/sensor_thread.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/seungju/2nd_project/vc_software/apps/realtime/sensor_thread.cpp > CMakeFiles/vc_realtime.dir/sensor_thread.cpp.i
 
 CMakeFiles/vc_realtime.dir/sensor_thread.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/vc_realtime.dir/sensor_thread.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ts5516/2nd_project/vc_software/apps/realtime/sensor_thread.cpp -o CMakeFiles/vc_realtime.dir/sensor_thread.cpp.s
-
-CMakeFiles/vc_realtime.dir/control_thread.cpp.o: CMakeFiles/vc_realtime.dir/flags.make
-CMakeFiles/vc_realtime.dir/control_thread.cpp.o: /home/ts5516/2nd_project/vc_software/apps/realtime/control_thread.cpp
-CMakeFiles/vc_realtime.dir/control_thread.cpp.o: CMakeFiles/vc_realtime.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ts5516/2nd_project/vc_software/apps/realtime/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/vc_realtime.dir/control_thread.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/vc_realtime.dir/control_thread.cpp.o -MF CMakeFiles/vc_realtime.dir/control_thread.cpp.o.d -o CMakeFiles/vc_realtime.dir/control_thread.cpp.o -c /home/ts5516/2nd_project/vc_software/apps/realtime/control_thread.cpp
-
-CMakeFiles/vc_realtime.dir/control_thread.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/vc_realtime.dir/control_thread.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ts5516/2nd_project/vc_software/apps/realtime/control_thread.cpp > CMakeFiles/vc_realtime.dir/control_thread.cpp.i
-
-CMakeFiles/vc_realtime.dir/control_thread.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/vc_realtime.dir/control_thread.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ts5516/2nd_project/vc_software/apps/realtime/control_thread.cpp -o CMakeFiles/vc_realtime.dir/control_thread.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/seungju/2nd_project/vc_software/apps/realtime/sensor_thread.cpp -o CMakeFiles/vc_realtime.dir/sensor_thread.cpp.s
 
 CMakeFiles/vc_realtime.dir/comm_thread.cpp.o: CMakeFiles/vc_realtime.dir/flags.make
-CMakeFiles/vc_realtime.dir/comm_thread.cpp.o: /home/ts5516/2nd_project/vc_software/apps/realtime/comm_thread.cpp
+CMakeFiles/vc_realtime.dir/comm_thread.cpp.o: /home/seungju/2nd_project/vc_software/apps/realtime/comm_thread.cpp
 CMakeFiles/vc_realtime.dir/comm_thread.cpp.o: CMakeFiles/vc_realtime.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ts5516/2nd_project/vc_software/apps/realtime/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/vc_realtime.dir/comm_thread.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/vc_realtime.dir/comm_thread.cpp.o -MF CMakeFiles/vc_realtime.dir/comm_thread.cpp.o.d -o CMakeFiles/vc_realtime.dir/comm_thread.cpp.o -c /home/ts5516/2nd_project/vc_software/apps/realtime/comm_thread.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/seungju/2nd_project/vc_software/apps/realtime/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/vc_realtime.dir/comm_thread.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/vc_realtime.dir/comm_thread.cpp.o -MF CMakeFiles/vc_realtime.dir/comm_thread.cpp.o.d -o CMakeFiles/vc_realtime.dir/comm_thread.cpp.o -c /home/seungju/2nd_project/vc_software/apps/realtime/comm_thread.cpp
 
 CMakeFiles/vc_realtime.dir/comm_thread.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/vc_realtime.dir/comm_thread.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ts5516/2nd_project/vc_software/apps/realtime/comm_thread.cpp > CMakeFiles/vc_realtime.dir/comm_thread.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/seungju/2nd_project/vc_software/apps/realtime/comm_thread.cpp > CMakeFiles/vc_realtime.dir/comm_thread.cpp.i
 
 CMakeFiles/vc_realtime.dir/comm_thread.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/vc_realtime.dir/comm_thread.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ts5516/2nd_project/vc_software/apps/realtime/comm_thread.cpp -o CMakeFiles/vc_realtime.dir/comm_thread.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/seungju/2nd_project/vc_software/apps/realtime/comm_thread.cpp -o CMakeFiles/vc_realtime.dir/comm_thread.cpp.s
 
-CMakeFiles/vc_realtime.dir/ipc_server.cpp.o: CMakeFiles/vc_realtime.dir/flags.make
-CMakeFiles/vc_realtime.dir/ipc_server.cpp.o: /home/ts5516/2nd_project/vc_software/apps/realtime/ipc_server.cpp
-CMakeFiles/vc_realtime.dir/ipc_server.cpp.o: CMakeFiles/vc_realtime.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ts5516/2nd_project/vc_software/apps/realtime/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/vc_realtime.dir/ipc_server.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/vc_realtime.dir/ipc_server.cpp.o -MF CMakeFiles/vc_realtime.dir/ipc_server.cpp.o.d -o CMakeFiles/vc_realtime.dir/ipc_server.cpp.o -c /home/ts5516/2nd_project/vc_software/apps/realtime/ipc_server.cpp
+CMakeFiles/vc_realtime.dir/control_thread.cpp.o: CMakeFiles/vc_realtime.dir/flags.make
+CMakeFiles/vc_realtime.dir/control_thread.cpp.o: /home/seungju/2nd_project/vc_software/apps/realtime/control_thread.cpp
+CMakeFiles/vc_realtime.dir/control_thread.cpp.o: CMakeFiles/vc_realtime.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/seungju/2nd_project/vc_software/apps/realtime/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/vc_realtime.dir/control_thread.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/vc_realtime.dir/control_thread.cpp.o -MF CMakeFiles/vc_realtime.dir/control_thread.cpp.o.d -o CMakeFiles/vc_realtime.dir/control_thread.cpp.o -c /home/seungju/2nd_project/vc_software/apps/realtime/control_thread.cpp
 
-CMakeFiles/vc_realtime.dir/ipc_server.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/vc_realtime.dir/ipc_server.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ts5516/2nd_project/vc_software/apps/realtime/ipc_server.cpp > CMakeFiles/vc_realtime.dir/ipc_server.cpp.i
+CMakeFiles/vc_realtime.dir/control_thread.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/vc_realtime.dir/control_thread.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/seungju/2nd_project/vc_software/apps/realtime/control_thread.cpp > CMakeFiles/vc_realtime.dir/control_thread.cpp.i
 
-CMakeFiles/vc_realtime.dir/ipc_server.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/vc_realtime.dir/ipc_server.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ts5516/2nd_project/vc_software/apps/realtime/ipc_server.cpp -o CMakeFiles/vc_realtime.dir/ipc_server.cpp.s
+CMakeFiles/vc_realtime.dir/control_thread.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/vc_realtime.dir/control_thread.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/seungju/2nd_project/vc_software/apps/realtime/control_thread.cpp -o CMakeFiles/vc_realtime.dir/control_thread.cpp.s
+
+CMakeFiles/vc_realtime.dir/vsomeip_manager.cpp.o: CMakeFiles/vc_realtime.dir/flags.make
+CMakeFiles/vc_realtime.dir/vsomeip_manager.cpp.o: /home/seungju/2nd_project/vc_software/apps/realtime/vsomeip_manager.cpp
+CMakeFiles/vc_realtime.dir/vsomeip_manager.cpp.o: CMakeFiles/vc_realtime.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/seungju/2nd_project/vc_software/apps/realtime/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/vc_realtime.dir/vsomeip_manager.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/vc_realtime.dir/vsomeip_manager.cpp.o -MF CMakeFiles/vc_realtime.dir/vsomeip_manager.cpp.o.d -o CMakeFiles/vc_realtime.dir/vsomeip_manager.cpp.o -c /home/seungju/2nd_project/vc_software/apps/realtime/vsomeip_manager.cpp
+
+CMakeFiles/vc_realtime.dir/vsomeip_manager.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/vc_realtime.dir/vsomeip_manager.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/seungju/2nd_project/vc_software/apps/realtime/vsomeip_manager.cpp > CMakeFiles/vc_realtime.dir/vsomeip_manager.cpp.i
+
+CMakeFiles/vc_realtime.dir/vsomeip_manager.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/vc_realtime.dir/vsomeip_manager.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/seungju/2nd_project/vc_software/apps/realtime/vsomeip_manager.cpp -o CMakeFiles/vc_realtime.dir/vsomeip_manager.cpp.s
+
+CMakeFiles/vc_realtime.dir/shared.cpp.o: CMakeFiles/vc_realtime.dir/flags.make
+CMakeFiles/vc_realtime.dir/shared.cpp.o: /home/seungju/2nd_project/vc_software/apps/realtime/shared.cpp
+CMakeFiles/vc_realtime.dir/shared.cpp.o: CMakeFiles/vc_realtime.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/seungju/2nd_project/vc_software/apps/realtime/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/vc_realtime.dir/shared.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/vc_realtime.dir/shared.cpp.o -MF CMakeFiles/vc_realtime.dir/shared.cpp.o.d -o CMakeFiles/vc_realtime.dir/shared.cpp.o -c /home/seungju/2nd_project/vc_software/apps/realtime/shared.cpp
+
+CMakeFiles/vc_realtime.dir/shared.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/vc_realtime.dir/shared.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/seungju/2nd_project/vc_software/apps/realtime/shared.cpp > CMakeFiles/vc_realtime.dir/shared.cpp.i
+
+CMakeFiles/vc_realtime.dir/shared.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/vc_realtime.dir/shared.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/seungju/2nd_project/vc_software/apps/realtime/shared.cpp -o CMakeFiles/vc_realtime.dir/shared.cpp.s
 
 # Object files for target vc_realtime
 vc_realtime_OBJECTS = \
 "CMakeFiles/vc_realtime.dir/main.cpp.o" \
-"CMakeFiles/vc_realtime.dir/joystick_thread.cpp.o" \
 "CMakeFiles/vc_realtime.dir/sensor_thread.cpp.o" \
-"CMakeFiles/vc_realtime.dir/control_thread.cpp.o" \
 "CMakeFiles/vc_realtime.dir/comm_thread.cpp.o" \
-"CMakeFiles/vc_realtime.dir/ipc_server.cpp.o"
+"CMakeFiles/vc_realtime.dir/control_thread.cpp.o" \
+"CMakeFiles/vc_realtime.dir/vsomeip_manager.cpp.o" \
+"CMakeFiles/vc_realtime.dir/shared.cpp.o"
 
 # External object files for target vc_realtime
 vc_realtime_EXTERNAL_OBJECTS =
 
 vc_realtime: CMakeFiles/vc_realtime.dir/main.cpp.o
-vc_realtime: CMakeFiles/vc_realtime.dir/joystick_thread.cpp.o
 vc_realtime: CMakeFiles/vc_realtime.dir/sensor_thread.cpp.o
-vc_realtime: CMakeFiles/vc_realtime.dir/control_thread.cpp.o
 vc_realtime: CMakeFiles/vc_realtime.dir/comm_thread.cpp.o
-vc_realtime: CMakeFiles/vc_realtime.dir/ipc_server.cpp.o
+vc_realtime: CMakeFiles/vc_realtime.dir/control_thread.cpp.o
+vc_realtime: CMakeFiles/vc_realtime.dir/vsomeip_manager.cpp.o
+vc_realtime: CMakeFiles/vc_realtime.dir/shared.cpp.o
 vc_realtime: CMakeFiles/vc_realtime.dir/build.make
+vc_realtime: /usr/local/lib/libvsomeip3.so.3.5.7
+vc_realtime: /usr/lib/aarch64-linux-gnu/libboost_system.so.1.74.0
+vc_realtime: /usr/lib/aarch64-linux-gnu/libboost_log.so.1.74.0
+vc_realtime: /usr/lib/aarch64-linux-gnu/libboost_thread.so.1.74.0
+vc_realtime: /usr/lib/aarch64-linux-gnu/libboost_atomic.so.1.74.0
+vc_realtime: /usr/lib/aarch64-linux-gnu/libboost_chrono.so.1.74.0
+vc_realtime: /usr/lib/aarch64-linux-gnu/libboost_filesystem.so.1.74.0
+vc_realtime: /usr/lib/aarch64-linux-gnu/libboost_regex.so.1.74.0
 vc_realtime: CMakeFiles/vc_realtime.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/ts5516/2nd_project/vc_software/apps/realtime/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX executable vc_realtime"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/seungju/2nd_project/vc_software/apps/realtime/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX executable vc_realtime"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/vc_realtime.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -185,6 +193,6 @@ CMakeFiles/vc_realtime.dir/clean:
 .PHONY : CMakeFiles/vc_realtime.dir/clean
 
 CMakeFiles/vc_realtime.dir/depend:
-	cd /home/ts5516/2nd_project/vc_software/apps/realtime/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/ts5516/2nd_project/vc_software/apps/realtime /home/ts5516/2nd_project/vc_software/apps/realtime /home/ts5516/2nd_project/vc_software/apps/realtime/build /home/ts5516/2nd_project/vc_software/apps/realtime/build /home/ts5516/2nd_project/vc_software/apps/realtime/build/CMakeFiles/vc_realtime.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/seungju/2nd_project/vc_software/apps/realtime/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/seungju/2nd_project/vc_software/apps/realtime /home/seungju/2nd_project/vc_software/apps/realtime /home/seungju/2nd_project/vc_software/apps/realtime/build /home/seungju/2nd_project/vc_software/apps/realtime/build /home/seungju/2nd_project/vc_software/apps/realtime/build/CMakeFiles/vc_realtime.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/vc_realtime.dir/depend
 

@@ -1,7 +1,7 @@
 CMakeFiles/vc_realtime.dir/ipc_server.cpp.o: \
- /home/ts5516/2nd_project/vc_software/apps/realtime/ipc_server.cpp \
+ /home/seungju/2nd_project/vc_software/apps/realtime/ipc_server.cpp \
  /usr/include/stdc-predef.h \
- /home/ts5516/2nd_project/vc_software/apps/realtime/shared.h \
+ /home/seungju/2nd_project/vc_software/apps/realtime/shared.h \
  /usr/include/c++/12/mutex /usr/include/c++/12/tuple \
  /usr/include/c++/12/bits/stl_pair.h /usr/include/c++/12/type_traits \
  /usr/include/aarch64-linux-gnu/c++/12/bits/c++config.h \
@@ -146,7 +146,7 @@ CMakeFiles/vc_realtime.dir/ipc_server.cpp.o: \
  /usr/include/c++/12/ext/atomicity.h \
  /usr/include/aarch64-linux-gnu/c++/12/bits/atomic_word.h \
  /usr/include/aarch64-linux-gnu/sys/single_threaded.h \
- /home/ts5516/2nd_project/vc_software/apps/realtime/vc_common.h \
+ /home/seungju/2nd_project/vc_software/apps/realtime/vc_common.h \
  /usr/include/c++/12/cstring /usr/include/string.h /usr/include/strings.h \
  /usr/include/c++/12/chrono /usr/include/c++/12/thread \
  /usr/include/c++/12/bits/std_thread.h \
