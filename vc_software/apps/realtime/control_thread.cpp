@@ -199,11 +199,10 @@ private:
 class HighBeamAssist {
 public:
     bool shouldEnableFrontHighBeam(const SensorData& sensor) const {
-        int val = 4095 - sensor.ambient_lux;
-        return (val >= 0 && val < kLuxThreshold);
+        return (sensor.ambient_lux >= 0 && sensor.ambient_lux < kLuxThreshold);
     }
 private:
-    static constexpr int kLuxThreshold = 50;
+    static constexpr int kLuxThreshold = 900;
 };
 
 // ====================================

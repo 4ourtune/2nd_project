@@ -1,3 +1,0 @@
-/home/seungju/2nd_project/vc_software/apps/realtime/build/CMakeFiles/sensor_comm_test.dir
-/home/seungju/2nd_project/vc_software/apps/realtime/build/CMakeFiles/edit_cache.dir
-/home/seungju/2nd_project/vc_software/apps/realtime/build/CMakeFiles/rebuild_cache.dir
