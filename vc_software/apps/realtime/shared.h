@@ -25,20 +25,31 @@ struct SensorData {
  
 
 
+// ---------------- LED 구분 상수 ----------------
+enum LedSide {
+    LED_BACK = 0,       // 후방 LED
+    LED_FRONT_DOWN = 1, // 전방 전조등
+    LED_FRONT_UP = 2    // 전방 하이빔
+};
+
 enum class ControlMode : uint8_t { Manual=0, Assist=1, Auto=2 };
 
 struct ControlOutput {
     // buzzer
-    bool buzzerOn;
-    int32_t frequency; // 250 ~ 1000
+    bool buzzerOn = false;
+    int32_t frequency = 500; // 250~1000Hz
+
     // led
-    int side; // LED_BACK = 0, LED_FRONT_DOWN = 1, LED_FRONT_UP = 2
-    bool isOn;
+    bool led_back_on = false;
+    bool led_front_down_on = false;
+    bool led_front_up_on = false;
+
     // emerAlert
-    int64_t interval_ms; // 알람 토글 시간 간격 값. 0이면 계속 켜짐. -1이면 꺼짐
+    int64_t alert_interval_ms = -1; // -1=OFF, 0=항상 켜짐, >0=토글 간격
+
     // motor
-    int throttle; // -100~+100
-    int steer;    // -100~+100
+    int throttle = 0; // -100~+100
+    int steer    = 0; // -100~+100
 };
 
 struct SharedData {
@@ -47,7 +58,7 @@ struct SharedData {
 
     // 상태
     bool engine_on = false;
-    bool door_locked = true;
+    bool door_locked = false;
     bool running = true;
 
     // 입력
