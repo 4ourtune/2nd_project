@@ -8,6 +8,11 @@ REQUIRED_PACKAGES=(
   python3-dbus
   python3-gi
   gir1.2-glib-2.0
+  libgirepository1.0-dev # required for GObject introspection/pycairo build
+  libcairo2              # runtime library for pycairo
+  libcairo2-dev          # pycairo build dependency
+  pkg-config             # used by pycairo's build tooling
+  libdbus-1-dev          # dbus-python build dependency
   bluez
   bluez-tools
   bluetooth

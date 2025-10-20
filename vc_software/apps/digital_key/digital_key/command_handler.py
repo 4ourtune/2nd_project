@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import json
 import logging
-import os
 import time
 from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple
 
@@ -17,7 +16,7 @@ from .pki import (
     coerce_public_key_pem,
 )
 try:
-    from ipc_client import send_cmd as ipc_send_cmd  # type: ignore
+    from .ipc_client import send_cmd as ipc_send_cmd  # pragma: no cover - imported for runtime IPC
 except ImportError:  # pragma: no cover - IPC optional during tests
     ipc_send_cmd = None
 
@@ -28,10 +27,6 @@ LOGGER = logging.getLogger(__name__)
 
 VEHICLE_COMMANDS = {"UNLOCK", "LOCK", "START", "GET_ALL"}
 
-# NOTE: TEST ONLY. Set DK_IPC_BYPASS=1 to bypass realtime IPC while the server is down.
-#       REMOVE BEFORE SHIPPING.
-IPC_TEST_BYPASS = os.environ.get("DK_IPC_BYPASS", "").strip() in {"1", "true", "TRUE"}
-_BYPASS_STATE = {"LOCKED": "0", "ENGINE": "0"}
 CERT_REQUEST_TYPE = "cert_request"
 SECURE_COMMAND_TYPE = "secure_command"
 PKI_COMMAND_TYPE = "pki_command"
@@ -171,6 +166,8 @@ class CommandHandler:
         }
         if vehicle_state:
             response["vehicleState"] = vehicle_state
+            response["data"]["vehicleState"] = vehicle_state
+            LOGGER.info("Vehicle state after %s: %s", command, vehicle_state)
         if action_data.get("rawResponse"):
             response.setdefault("metadata", {})["ipcRaw"] = action_data["rawResponse"]
         return True, response
@@ -216,26 +213,22 @@ class CommandHandler:
 
     def _dispatch_ipc_command(self, command: str) -> Tuple[bool, Dict[str, Any]]:
         """Send command to realtime process and parse minimal status details."""
-        def _stub_response() -> Tuple[bool, Dict[str, Any]]:
-            LOGGER.warning("IPC TEST BYPASS ACTIVE - REMOVE BEFORE RELEASE.")
-            stub = {"rawResponse": "OK;REQ=0;LOCKED={LOCKED};ENGINE={ENGINE}\n".format(**_BYPASS_STATE)}
-            stub.update(_BYPASS_STATE)
-            return True, stub
-
-        if IPC_TEST_BYPASS or ipc_send_cmd is None:
-            return _stub_response()
+        if ipc_send_cmd is None:
+            raise RuntimeError("Realtime IPC client unavailable (ipc_client module missing)")
 
         try:
             ok, resp = ipc_send_cmd(command, "DK")
         except Exception as exc:  # pylint: disable=broad-except
-            LOGGER.warning("IPC send failed (%s); falling back to stub", exc)
-            return _stub_response()
+            LOGGER.error("Realtime IPC send failed for %s: %s", command, exc)
+            return False, {"error": f"ipc_exception:{exc}"}
 
         parsed: Dict[str, Any] = {"rawResponse": resp}
         if not ok:
-            LOGGER.warning("IPC returned error '%s'; falling back to stub", resp)
-            return _stub_response()
-        tokens = resp.strip().split(';')
+            LOGGER.error("Realtime IPC returned error for %s: %s", command, resp)
+            parsed["error"] = resp
+            return False, parsed
+
+        tokens = (resp or "").strip().split(';')
         for token in tokens:
             token = token.strip()
             if not token:
