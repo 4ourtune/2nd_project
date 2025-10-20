@@ -1,3 +1,9 @@
+#include <array>
+#include <vector>
+#include <cstddef>
+#include <cstdint>
+#include <algorithm>
+
 #include "vsomeip_manager.h"
 #include "shared.h"
 #include <iostream>

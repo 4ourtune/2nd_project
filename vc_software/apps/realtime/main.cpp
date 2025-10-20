@@ -43,16 +43,16 @@ int main(){
             running_snapshot = g_shared.running;
             if (running_snapshot && t - last_log >= PERIOD_LOG_MS) {
                 std::cout << "[STAT] eng=" << g_shared.engine_on
-                          << " joy(" << g_shared.joy.x << "," << g_shared.joy.y << ")"
-                          << " dist=" << g_shared.sensor.dist_cm
-                          << " lux=" << g_shared.sensor.ambient_lux
-                          << " out(thr=" << g_shared.out.throttle
-                          << ",str=" << g_shared.out.steer
-                          << ",low=" << g_shared.out.front_low_beam_on
-                          << ",high=" << g_shared.out.front_high_beam_on
-                          << ",rear_alert=" << g_shared.out.rear_alert_on
-                          << ",buzzer=" << g_shared.out.buzzer_on
-                          << ",aeb=" << g_shared.out.aeb_brake << ")\n";
+                            << " joy(" << g_shared.joy.x << "," << g_shared.joy.y << ")"
+                            << " dist=" << g_shared.sensor.dist_cm
+                            << " lux=" << g_shared.sensor.ambient_lux
+                            << " out(thr=" << g_shared.out.throttle
+                            << ",str=" << g_shared.out.steer
+                            << ",low=" << g_shared.out.led_front_down_on
+                            << ",high=" << g_shared.out.led_front_up_on
+                            << ",rear_alert=" << g_shared.out.led_back_on
+                            << ",buzzer=" << g_shared.out.buzzerOn
+                            << ")\n";
                 last_log = t;
             }
         }

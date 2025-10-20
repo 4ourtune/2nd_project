@@ -1,10 +1,20 @@
-﻿﻿#include "shared.h"
-#include "vc_common.h"
-#include "config.h"
+﻿﻿// --- 표준 헤더 (순서 매우 중요) ---
+#include <cstddef>     // size_t
+#include <cstdint>     // uint8_t 등
+#include <array>       // std::array
+#include <vector>      // std::vector
+#include <algorithm>   // std::clamp
+#include <mutex>       // std::mutex
+#include <thread>
+#include <chrono>
+#include <iostream>
 
-#include <algorithm>
-#include <array>
-#include <cstdint>
+// --- 프로젝트 헤더 ---
+#include "shared.h"
+#include "vsomeip_manager.h"
+
+
+
 
 namespace {
 

@@ -1,6 +1,11 @@
 #ifndef VSOMEIP_MANAGER_H_
 #define VSOMEIP_MANAGER_H_
 
+#include <cstddef>
+#include <cstdint>
+#include <array>
+#include <algorithm>
+
 #include <vsomeip/vsomeip.hpp>
 #include <memory>
 #include <mutex>

@@ -45,11 +45,6 @@ project(VSomeIP_SensorTest)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-if (MSVC)
-  add_compile_options($<$<CONFIG:Release>:/O2>)
-else()
-  add_compile_options(-O2 -Wall -Wextra -Wpedantic)
-endif()
 
 find_package(vsomeip3 REQUIRED)
 find_package(Boost 1.55 COMPONENTS system thread log REQUIRED)
