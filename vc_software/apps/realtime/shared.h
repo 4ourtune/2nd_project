@@ -58,7 +58,7 @@ struct SharedData {
 
     // 상태
     bool engine_on = false;
-    bool door_locked = true;
+    bool door_locked = false;
     bool running = true;
 
     // 입력

@@ -75,9 +75,15 @@ void joystick_thread(){
                 g_shared.joy.x   = x;
                 g_shared.joy.y   = y;
                 g_shared.joy.ts_ms = now_ms();
+                std::printf("[JOY] recv (%d,%d) @%llu ms\n",
+                            g_shared.joy.x,
+                            g_shared.joy.y,
+                            static_cast<unsigned long long>(g_shared.joy.ts_ms));
             } else {
                 // 버튼 정책 예시: 1 → 엔진 ON, 0 → OFF
                 g_shared.engine_on = (btn == 1);
+                std::printf("[JOY] button=%d -> engine_on=%d\n",
+                            btn, g_shared.engine_on ? 1 : 0);
             }
         }
     }

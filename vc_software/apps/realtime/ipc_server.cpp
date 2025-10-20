@@ -143,6 +143,8 @@ void ipc_thread() {
                 g_shared.door_locked = false;
             } else if (cmd == "START") {
                 g_shared.engine_on = true;
+            } else if (cmd == "STOP") {
+                g_shared.engine_on = false;
             } else if (cmd == "GET_ALL") {
                 extra = ";LOCKED=" + std::to_string(g_shared.door_locked ? 1 : 0);
                 extra += ";ENGINE=" + std::to_string(g_shared.engine_on ? 1 : 0);

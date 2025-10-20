@@ -21,7 +21,7 @@ log "Upgrading pip/setuptools"
 
 log "Installing BLE dependencies"
 "$ENV_DIR/bin/python" -m pip --disable-pip-version-check install --upgrade --quiet \
-  bluezero requests python-dotenv cryptography
+  bluezero requests python-dotenv cryptography dbus-python
 
 log "Verifying bluezero import"
 "$ENV_DIR/bin/python" - <<'PY'

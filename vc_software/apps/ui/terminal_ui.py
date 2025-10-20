@@ -6,9 +6,11 @@ from __future__ import annotations
 import json
 import os
 import random
+import re
 import select
 import socket
 import string
+import subprocess
 import sys
 import threading
 import time
@@ -16,6 +18,7 @@ import termios
 import tty
 from dataclasses import dataclass
 from typing import Any, Optional
+from pathlib import Path
 
 import paho.mqtt.client as mqtt
 
@@ -23,6 +26,10 @@ import paho.mqtt.client as mqtt
 DEFAULT_MQTT_HOST = os.environ.get("MQTT_HOST", "192.168.137.1")  # PC 브로커 IP
 DEFAULT_MQTT_PORT = int(os.environ.get("MQTT_PORT", "1883"))
 DEFAULT_VIN = os.environ.get("VEHICLE_VIN", "TESTVIN0000000000")
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+DEFAULT_PAIRING_SCRIPT = SCRIPT_DIR.parent / "digital_key" / "scripts" / "pairing_pin_check.py"
+PAIRING_SCRIPT = Path(os.environ.get("PAIRING_PIN_SCRIPT", str(DEFAULT_PAIRING_SCRIPT))).expanduser()
 
 
 def _default_client_id_suffix() -> str:
@@ -208,20 +215,85 @@ class TerminalUI:
                 msg += f" (사유: {reason})"
             print(msg, flush=True)
 
+    def _extract_pin_payload(self, stdout: str) -> Optional[dict[str, Any]]:
+        if not stdout:
+            return None
+        last_brace = stdout.rfind("{")
+        if last_brace == -1:
+            return None
+        candidate = stdout[last_brace:]
+        try:
+            data = json.loads(candidate)
+        except json.JSONDecodeError:
+            return None
+        if not isinstance(data, dict):
+            return None
+        if "pin" not in data:
+            return None
+        return data
+
+    def _extract_vehicle_id(self, stdout: str) -> Optional[str]:
+        if not stdout:
+            return None
+        match = re.search(r"vehicleId.*:\s*([0-9A-Za-z_-]+)", stdout)
+        if match:
+            return match.group(1)
+        return None
+
     def publish_pin_request(self) -> None:
-        request_topic = prefixed("ui/dk/pin/request")
-        request = {
-            "vin": DEFAULT_VIN,
-            "ttl_sec": 180,
-            "req_id": f"req-{int(time.time())}",
-        }
-        payload = json.dumps(request, ensure_ascii=False)
-        result = self._client.publish(request_topic, payload=payload, qos=1, retain=False)
-        result.wait_for_publish()
-        if result.rc == mqtt.MQTT_ERR_SUCCESS:
-            print(f"[PIN] PIN 요청 발행 → {request_topic}", flush=True)
+        script_path = PAIRING_SCRIPT
+        if not script_path.is_file():
+            print(f"[PIN] pairing_pin_check.py 경로를 찾을 수 없습니다: {script_path}", flush=True)
+            return
+
+        print(f"[PIN] pairing_pin_check 실행 중 → {script_path}", flush=True)
+        try:
+            completed = subprocess.run(
+                [sys.executable, str(script_path)],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+        except Exception as exc:  # pylint: disable=broad-except
+            print(f"[PIN] 스크립트 실행 실패: {exc}", flush=True)
+            return
+
+        stdout = completed.stdout.strip()
+        stderr = completed.stderr.strip()
+
+        if completed.returncode != 0:
+            if stdout:
+                print(stdout, flush=True)
+            if stderr:
+                print(stderr, flush=True)
+            print(f"[PIN] 스크립트가 오류 코드 {completed.returncode}로 종료되었습니다.", flush=True)
+            return
+
+        pin_payload = self._extract_pin_payload(stdout)
+        if pin_payload:
+            vin = pin_payload.get("vin") or DEFAULT_VIN
+            vehicle_id = (
+                pin_payload.get("vehicleId")
+                or pin_payload.get("vehicle_id")
+                or pin_payload.get("header_vehicle_id")
+                or self._extract_vehicle_id(stdout)
+            )
+            pin = pin_payload.get("pin")
+            ttl = pin_payload.get("ttl_sec") or pin_payload.get("ttlSec")
+            print("=== 디지털키 PIN 발급 ===", flush=True)
+            if vehicle_id:
+                print(f"Vehicle ID: {vehicle_id}", flush=True)
+            else:
+                print(f"VIN: {vin}", flush=True)
+            print(f"PIN: {pin}", flush=True)
+            if ttl is not None:
+                print(f"유효시간: {ttl}초", flush=True)
         else:
-            print(f"[PIN] 발행 실패 rc={result.rc}", flush=True)
+            if stdout:
+                print(stdout, flush=True)
+
+        if stderr:
+            print(stderr, flush=True)
 
     def _publish_ack(self, decision: str, pending: NotifyState) -> None:
         topic = prefixed("ota/vehicle_control/ack")
