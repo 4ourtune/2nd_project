@@ -1,4 +1,4 @@
-﻿﻿#include "shared.h"
+﻿#include "shared.h"
 #include "vc_common.h"
 #include "config.h"
 

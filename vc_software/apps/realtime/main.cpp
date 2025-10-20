@@ -5,8 +5,9 @@
 #include "shared.h"
 #include "vc_common.h"
 #include "config.h"
+#include "vsomeip_manager.h"
 
-SharedData g_shared;
+//SharedData g_shared;
 
 void joystick_thread();
 void sensor_thread();
@@ -21,6 +22,14 @@ static void sigint_handler(int){
 }
 
 int main(){
+    // 1?. vsomeip √ ±‚»≠
+    VSomeIPManager& someip = VSomeIPManager::getInstance();
+    if (!someip.init()) {
+        std::cout << "[main] ERROR: vsomeip init failed\n";
+        return -1;
+    }
+    std::cout << "[main] vsomeip initialized successfully\n";
+
     std::signal(SIGINT, sigint_handler);
 
     std::thread t_joy(joystick_thread);
@@ -42,17 +51,7 @@ int main(){
             std::lock_guard<std::mutex> lk(g_shared.mtx);
             running_snapshot = g_shared.running;
             if (running_snapshot && t - last_log >= PERIOD_LOG_MS) {
-                std::cout << "[STAT] eng=" << g_shared.engine_on
-                          << " joy(" << g_shared.joy.x << "," << g_shared.joy.y << ")"
-                          << " dist=" << g_shared.sensor.dist_cm
-                          << " lux=" << g_shared.sensor.ambient_lux
-                          << " out(thr=" << g_shared.out.throttle
-                          << ",str=" << g_shared.out.steer
-                          << ",low=" << g_shared.out.front_low_beam_on
-                          << ",high=" << g_shared.out.front_high_beam_on
-                          << ",rear_alert=" << g_shared.out.rear_alert_on
-                          << ",buzzer=" << g_shared.out.buzzer_on
-                          << ",aeb=" << g_shared.out.aeb_brake << ")\n";
+
                 last_log = t;
             }
         }
