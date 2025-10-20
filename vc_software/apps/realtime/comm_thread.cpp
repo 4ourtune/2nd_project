@@ -33,12 +33,25 @@ void comm_thread(){
                 std::cout << "Request buzzer control\n";
 			}
 
-			if (out.side != preOut.side || out.isOn != preOut.isOn) {
-				someip.requestLedControl(out.side, out.isOn);
-				preOut.side = out.side;
-				preOut.isOn = out.isOn;
-                std::cout << "Request led control\n";
-			}
+            {
+                if (out.led_back_on != preOut.led_back_on) {
+                    someip.requestLedControl(0, out.led_back_on);
+                    preOut.led_back_on = out.led_back_on;
+                    std::cout << "Request led_back control\n";
+                }
+                
+                if (out.led_front_down_on != preOut.led_front_down_on) {
+                    someip.requestLedControl(1, out.led_front_down_on);
+                    preOut.led_front_down_on = out.led_front_down_on;
+                    std::cout << "Request led_front_down control\n";
+                }
+                
+                if (out.led_front_up_on != preOut.led_front_up_on) {
+                    someip.requestLedControl(2, out.led_front_up_on);
+                    preOut.led_front_up_on = out.led_front_up_on;
+                    std::cout << "Request led_front_up control\n";
+                }
+            }
 
 			if (out.interval_ms != preOut.interval_ms) {
 				someip.requestAlertControl(out.interval_ms);
