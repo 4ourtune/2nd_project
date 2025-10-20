@@ -3,7 +3,11 @@ project(vc_realtime CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-add_compile_options(-O2 -Wall -Wextra -Wpedantic)
+if (MSVC)
+  add_compile_options($<$<CONFIG:Release>:/O2>)
+else()
+  add_compile_options(-O2 -Wall -Wextra -Wpedantic)
+endif()
 
 add_executable(vc_realtime
   main.cpp
