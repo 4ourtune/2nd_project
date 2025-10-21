@@ -23,7 +23,7 @@
 
 // 기존 내용 유지하고 아래 두 줄만 추가
 #define JOY_BIND_ADDR   "0.0.0.0"  // VC가 바인드할 주소(모든 NIC)
-#define JOY_UDP_PORT    5001       // 조이스틱 RPi가 쏘는 UDP 포트
+#define JOY_UDP_PORT    5002       // 조이스틱 RPi가 쏘는 UDP 포트
 
 
 #endif

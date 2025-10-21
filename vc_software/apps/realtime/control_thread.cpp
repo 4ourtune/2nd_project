@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <array>
 #include <cstdint>
+#include <iostream>
 
 namespace {
 
@@ -14,11 +15,11 @@ constexpr int32_t  kDoorChirpLowFreqHz  = 350;
 constexpr int32_t  kDoorChirpHighFreqHz = 900;
 constexpr uint64_t kDoorChirpDurationMs = 180;
 
-static int map_joy_to_throttle(int y){ // 0~99 -> -100~+100
-    return std::clamp((y - 50) * 2, -100, 100);
+static int map_joy_to_throttle(int y){ // 0~99
+    return std::clamp(y, -100, 100);
 }
-static int map_joy_to_steer(int x){    // 0~99 -> -100~+100
-    return std::clamp((x - 50) * 2, -100, 100);
+static int map_joy_to_steer(int x){    // 0~99
+    return std::clamp(x, -100, 100);
 }
 
 class AebController {
@@ -275,7 +276,7 @@ private:
 
     static int mapJoystickValue(int value){
         value = std::clamp(value, 0, 99);
-        return (value * 200 / 99) - 100;
+        return value;
     }
 
     const Config cfg_{100, 0.5f, 150.0f, 100, 30};
@@ -364,10 +365,44 @@ void ControlLoop::run(){
         next_tick_ms = t_ms + PERIOD_CTRL_MS;
 
         ControlInputs inputs = snapshotInputs(t_ms);
+        
         ControlOutput out = computeOutput(inputs);
+        
         publishOutput(out);
     }
 }
+
+//struct SensorData {
+//    int dist_cm = 999;      // 앞 장애물 거리(Stub)
+//    int ambient_lux = 0;    // 조도(Stub)
+//    int front_tof_mm = -1;  // 전방 ToF (mm)
+//    int left_ultra_mm = -1; // 좌측 초음파 (mm)
+//    int right_ultra_mm = -1; // 우측 초음파 (mm)
+//    int rear_ultra_mm = -1;  // 후방 초음파 (mm)
+//    uint64_t ts_ms = 0;
+//    uint64_t front_ts_us = 0;
+//    uint64_t left_ts_us = 0;
+//    uint64_t right_ts_us = 0;
+//    uint64_t rear_ts_us = 0;
+//};
+
+//struct ControlOutput {
+//    // buzzer
+//    bool buzzerOn = false;
+//    int32_t frequency = 500; // 250~1000Hz
+//
+//    // led
+//    bool led_back_on = false;
+//    bool led_front_down_on = false;
+//    bool led_front_up_on = false;
+//
+//    // emerAlert
+//    int64_t alert_interval_ms = -1; // -1=off, 0=on(지속), >0=점멸주기(ms)
+//
+//    // motor
+//    int throttle = 0; // -100~+100
+//    int steer = 0;    // -100~+100
+//};
 
 ControlLoop::ControlInputs ControlLoop::snapshotInputs(uint64_t now_ms_value){
     ControlInputs inputs;

@@ -52,9 +52,12 @@ void joystick_thread(){
         ::close(sock);
         return;
     }
+    
+    std::printf("[JOY] Enter while loop\n");
 
     char buf[256];
-    while (g_shared.running) {
+    //while (g_shared.running) {
+    while (true) {
         sockaddr_in src{}; socklen_t slen = sizeof(src);
         ssize_t n = recvfrom(sock, buf, sizeof(buf)-1, 0, (sockaddr*)&src, &slen);
         if (n <= 0) continue;
@@ -71,6 +74,7 @@ void joystick_thread(){
 
         {
             std::lock_guard<std::mutex> lk(g_shared.mtx);
+            std::printf("[JOY] is_motor: %d\n", is_motor);
             if (is_motor) {
                 g_shared.joy.x   = x;
                 g_shared.joy.y   = y;

@@ -57,7 +57,7 @@ struct SharedData {
     std::mutex mtx;
 
     // 상태
-    bool engine_on = false;
+    bool engine_on = true;
     bool door_locked = false;
     bool running = true;
 
