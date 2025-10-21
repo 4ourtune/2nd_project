@@ -29,11 +29,20 @@ info g_ecuInfo = {
     "MyProjectSupplier"  // Supplier
 };
 
+
+
+// [신규] 전역 변수 초기화 (기존 C 코드의 하드코딩된 값)
+SensorThresholds_t g_sensorThresholds = {
+    0, // ultra_min_mm
+    400, // ultra_max_mm
+    0, // tof_min_mm
+    5000  // tof_max_mm
+};
+
 McmcanType g_mcmcan;
 
 static void UDS_Handle_14(const unsigned char *uds, int len)
 {
-
     // 실제로 DTC 스토리지 초기화하는 코드가 있으면 여기에 추가
     memset(g_dtcList, 0, sizeof(g_dtcList));
     g_dtcCount = 0;
@@ -100,7 +109,27 @@ static inline void UDS_Handle_2E_0005(const unsigned char *uds, int len)
     // 필요시 비휘발성 저장
     // SaveToFlash(&g_ecuInfo);
 
-    unsigned char pos[8] = {0x04, 0x6E, 0x00, 0x05, 0, 0, 0, 0};
+    unsigned char pos[8] = {0x03, 0x6E, 0x00, 0x05, 0, 0, 0, 0};
+    Can_SendMsg(0x7e8, (const char *)pos, 8);
+}
+
+// [신규] DID 0x0006 쓰기 요청을 처리하는 함수
+static inline void UDS_Handle_2E_0006(const unsigned char *uds, int len)
+{
+    // 데이터 길이 확인 (SID, DID H/L + 8바이트 데이터)
+    if (len < 3 + (int)sizeof(SensorThresholds_t))
+    {
+        // 길이가 짧으면 Negative Response
+        unsigned char neg[8] = {0x03, 0x7F, 0x2E, 0x13, 0, 0, 0, 0}; // Incorrect Message Length
+        Can_SendMsg(0x7e8, (const char *)neg, 8);
+        return;
+    }
+
+    // 전역 변수 g_sensorThresholds를 새 값으로 덮어쓰기
+    memcpy(&g_sensorThresholds, &uds[3], sizeof(SensorThresholds_t));
+
+    // Positive Response 전송
+    unsigned char pos[8] = {0x03, 0x6E, 0x00, 0x06, 0, 0, 0, 0};
     Can_SendMsg(0x7e8, (const char *)pos, 8);
 }
 
@@ -128,6 +157,10 @@ static inline void UDS_Dispatch_CompletedPdu(const unsigned char *uds, int len)
         {
             UDS_Handle_2E_0005(uds, len);
         }
+        else if (len >= 3 && uds[1] == 0x00 && uds[2] == 0x06)
+                {
+                    UDS_Handle_2E_0006(uds, len);
+                }
         else
         {
             unsigned char neg[8] = {0x03, 0x7F, 0x2E, 0x31, 0, 0, 0, 0}; // R-O-O-R
@@ -192,28 +225,58 @@ void Can_TpRx(const unsigned char *data, int len)
     }
 }
 
-void DTC_Add(unsigned int code, unsigned char status)
+void DTC_Report(unsigned int code)
 {
-    if (g_dtcCount >= MAX_DTC_COUNT)
-        return;
-
-    // 중복 등록 방지
-    for (unsigned int i = 0; i < g_dtcCount; i++)
-    {
-        if (g_dtcList[i].dtcCode == code)
+    // 1) 기존 항목 찾기
+    for (unsigned int i = 0; i < g_dtcCount; i++) {
+        if (g_dtcList[i].dtcCode == code) {
+            if (g_dtcList[i].detectCnt == 0) {
+                // 첫 감지 → 보류
+                g_dtcList[i].detectCnt = 1;
+                g_dtcList[i].status    = 0x01; // Pending
+            } else {
+                // 두 번째 이상 감지 → 확정
+                g_dtcList[i].detectCnt++;
+                g_dtcList[i].status    = 0x40; // Confirmed
+            }
             return;
+        }
     }
 
-    g_dtcList[g_dtcCount].dtcCode = code;
-    g_dtcList[g_dtcCount].status = status;
-    g_dtcCount++;
+    // 2) 새 항목 추가 (최초 감지=보류)
+    if (g_dtcCount < MAX_DTC_COUNT) {
+        g_dtcList[g_dtcCount].dtcCode   = code;
+        g_dtcList[g_dtcCount].detectCnt = 1;
+        g_dtcList[g_dtcCount].status    = 0x01; // Pending
+        g_dtcCount++;
+    }
+}
+
+
+void DTC_Add(unsigned int code, unsigned char status)
+{
+    // 내부 표준은 자동 승급 사용
+    DTC_Report(code);
+
+    // 필요 시 호출자가 더 높은 단계(예: 0x40)를 강제로 올려 둘 수 있도록 허용
+    for (unsigned int i = 0; i < g_dtcCount; i++) {
+        if (g_dtcList[i].dtcCode == code) {
+            if (status > g_dtcList[i].status) {
+                g_dtcList[i].status = status;
+                if (status == 0x40 && g_dtcList[i].detectCnt < 2) {
+                    g_dtcList[i].detectCnt = 2; // 일관성 유지
+                }
+            }
+            return;
+        }
+    }
 }
 
 void DTC_Clear(void)
 {
+    memset(g_dtcList, 0, sizeof(g_dtcList));
     g_dtcCount = 0;
 }
-
 /* -------------------- ISO15765-2 CAN TP 송신 -------------------- */
 void Can_TpSend(unsigned int id, unsigned char *data, int len)
 {
@@ -359,15 +422,15 @@ void Can_RxIsrHandler(void)
 
             if (!ok)
             {
-                DTC_Add(0x010100 + (side_index * 0x10) + 0x0, 0x40);
+                DTC_Report(0x010100 + (side_index * 0x10) + 0x0);
                 Can_SendMsg(0x7e8, (const char *)negCanData, 8);
                 result_char = 'F';
                 return;
             }
 
-            if (senVal < 2000 || senVal > 4000)
+            if (senVal < g_sensorThresholds.ultra_min_mm || senVal > g_sensorThresholds.ultra_max_mm)
             {
-                DTC_Add(0x010100 + (side_index * 0x10) + 0x1, 0x40);
+                DTC_Report(0x010100 + (side_index * 0x10) + 0x1);
                 result_char = 'F';
             }
         }
@@ -383,16 +446,17 @@ void Can_RxIsrHandler(void)
 
             if (!ok)
             {
-                DTC_Add(0x010200, 0x40);
+                DTC_Report(0x010200);
                 Can_SendMsg(0x7e8, (const char *)negCanData, 8);
                 result_char = 'F';
                 return;
             }
 
-            if (senVal < 1000 || senVal > 5000)
+            if (senVal < g_sensorThresholds.tof_min_mm || senVal > g_sensorThresholds.tof_max_mm)
             {
-                DTC_Add(0x010201, 0x40);
+                DTC_Report(0x010201);
                 result_char = 'F';
+                my_printf(" totmin: %u, tof max : %u", g_sensorThresholds.tof_min_mm, g_sensorThresholds.tof_max_mm);
             }
         }
 

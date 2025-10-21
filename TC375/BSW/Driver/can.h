@@ -58,8 +58,16 @@ typedef enum {
 
 typedef struct {
     unsigned int dtcCode;    // 예: 0x010118 (P0118)
-    unsigned char status;    // 예: 0x40 = Confirmed DTC
+    unsigned char status;
+    unsigned char  detectCnt;// 예: 0x40 = Confirmed DTC
 } DtcEntry_t;
+
+typedef struct {
+    unsigned short ultra_min_mm;
+    unsigned short ultra_max_mm;
+    unsigned short tof_min_mm;
+    unsigned short tof_max_mm;
+} SensorThresholds_t;
 
 /*********************************************************************************************************************/
 /*--------------------------------------------------Global variables-------------------------------------------------*/
@@ -77,6 +85,10 @@ void Can_SetFilterMask(uint32 id, uint32 mask);
 
 void Can_SendMsg(unsigned int id, const char *txData, int len);
 int Can_RecvMsg(unsigned int *id, char *rxData, int *len);
+
+
+void DTC_Report(unsigned int code);
+void DTC_Clear(void);
 
 /* [추가] CAN TP 송신 함수 프로토타입 */
 void Can_TpSend(unsigned int id, unsigned char *data, int len);
