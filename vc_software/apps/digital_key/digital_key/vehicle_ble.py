@@ -16,6 +16,7 @@ from .chunks import CommandChunkAssembler
 from .command_handler import CommandHandler
 from .config import ensure_runtime_dirs
 from .key_store import KeyStore
+from .led_controller import build_led_controller_from_env
 from .pairing import PairingManager
 from .pairing_client import build_client
 
@@ -51,10 +52,12 @@ class VehicleBleServer:
         self.certificate_provider = build_static_provider_from_env()
         if self.certificate_provider is None:
             LOGGER.info("Certificate provider unavailable; cert_request will be rejected")
+        self.led_controller = build_led_controller_from_env()
         self.command_handler = CommandHandler(
             self.key_store,
             certificate_provider=self.certificate_provider,
             pairing_manager=self.pairing_manager,
+            led_controller=self.led_controller,
         )
         self.pairing_manager.register_session_observer(self._on_pin_session_update)
         self._last_command_response: list[int] = _json_to_dbus_bytes(
@@ -353,7 +356,12 @@ class VehicleBleServer:
                 self.peripheral.srv_mng.unregister_application(self.peripheral.app.get_path())
                 LOGGER.info("GATT application unregistered")
         except Exception as exc:  # pylint: disable=broad-except
-            LOGGER.warning("Failed to unregister GATT application: %s", exc)
+                LOGGER.warning("Failed to unregister GATT application: %s", exc)
+        if self.led_controller is not None:
+            try:
+                self.led_controller.cleanup()
+            except Exception as exc:  # pragma: no cover - hardware optional
+                LOGGER.debug("LED controller cleanup failed: %s", exc)
 
 
 def detect_adapter() -> str:

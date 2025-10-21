@@ -20,8 +20,14 @@ try:
 except ImportError:  # pragma: no cover - IPC optional during tests
     ipc_send_cmd = None
 
+try:
+    from .led_controller import VehicleLedController
+except ImportError:  # pragma: no cover - optional hardware integration
+    VehicleLedController = None  # type: ignore[assignment]
+
 if TYPE_CHECKING:
     from .pairing import PairingManager
+    from .led_controller import VehicleLedController
 
 LOGGER = logging.getLogger(__name__)
 
@@ -43,10 +49,12 @@ class CommandHandler:
         key_store: KeyStore,
         certificate_provider: Optional[CertificateProvider] = None,
         pairing_manager: Optional["PairingManager"] = None,
+        led_controller: Optional["VehicleLedController"] = None,
     ):
         self.key_store = key_store
         self.certificate_provider = certificate_provider
         self.pairing_manager = pairing_manager
+        self.led_controller = led_controller
 
     def process(self, payload: Dict[str, Any]) -> Tuple[bool, Optional[Dict[str, Any]]]:
         """Handle a command payload from the smartphone."""
@@ -170,6 +178,9 @@ class CommandHandler:
             LOGGER.info("Vehicle state after %s: %s", command, vehicle_state)
         if action_data.get("rawResponse"):
             response.setdefault("metadata", {})["ipcRaw"] = action_data["rawResponse"]
+        if self.led_controller is not None:
+            self._update_led_indicators(command, vehicle_state)
+
         return True, response
 
     @staticmethod
@@ -250,6 +261,18 @@ class CommandHandler:
         if engine is not None:
             state["engineOn"] = str(engine).strip() in {"1", "true", "TRUE"}
         return state
+
+    def _update_led_indicators(self, command: str, vehicle_state: Dict[str, Any]) -> None:
+        if not vehicle_state and command != "GET_ALL":
+            return
+
+        try:
+            self.led_controller.update(
+                locked=vehicle_state.get("locked"),
+                engine_on=vehicle_state.get("engineOn"),
+            )
+        except Exception as exc:  # pragma: no cover - guard hardware integration
+            LOGGER.warning("Failed to update LED indicators: %s", exc)
 
     # Secure command helpers -------------------------------------------
     def _handle_secure_command(self, payload: Dict[str, Any]) -> Tuple[bool, Dict[str, Any]]:
